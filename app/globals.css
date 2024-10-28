@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+
+  --primary: 142 76% 36%;
+  --primary-light: 142 76% 96%;
+  --primary-foreground: 355.7 100% 97.3%;
+
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+}
+
+body {
+  @apply bg-background text-foreground min-h-screen;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  min-height: 100vh;
+  font-feature-settings: "rlig" 1, "calt" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-geist-sans);
+  }
+
+  code,
+  pre {
+    font-family: var(--font-geist-mono);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer components {
+  .nav-item-hover {
+    @apply transition-all duration-200 ease-in-out;
+    @apply hover:translate-x-1;
+  }
+
+  .gradient-hover {
+    @apply relative overflow-hidden;
+    @apply before:absolute before:inset-0 before:bg-gradient-to-r before:from-primary-100 before:to-transparent before:opacity-0;
+    @apply hover:before:opacity-100 before:transition-opacity before:duration-300;
+  }
+}
+
+/* Smooth scrolling for the sidebar */
+.overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: theme("colors.primary.200") transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  width: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: theme("colors.primary.200");
+  border-radius: 20px;
+}
+
+@supports (backdrop-filter: blur(0px)) {
+  .backdrop-blur-sm {
+    backdrop-filter: blur(8px);
+  }
+}
