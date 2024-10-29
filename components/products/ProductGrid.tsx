@@ -4,9 +4,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Product } from "@/types/products";
 
+interface ProductGridProps {
+  products: Product[];
+}
 
-export default function ProductGrid({ products}) {
+export default function ProductGrid({ products }: ProductGridProps) {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -77,48 +81,45 @@ export default function ProductGrid({ products}) {
 
   return (
     <div className="space-y-6">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentPage}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"
-        >
-          {currentProducts.map((product, index) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{
-                opacity: 1,
-                y: 0,
-                transition: { delay: index * 0.1 },
-              }}
-              onClick={() => handleProductClick(product.id)}
-              className="group cursor-pointer"
-            >
-              <div className="rounded-lg border border-border overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-primary-200">
-                <div className="aspect-square bg-muted relative overflow-hidden">
-                  <img
-                    src={product.imageUrl}
-                    alt={product.name}
-                    className="object-cover w-full h-full transform transition-transform duration-300 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <div className="p-4">
-                  <h3 className="font-medium group-hover:text-primary-600 transition-colors line-clamp-1">
-                    {product.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                    {product.description}
-                  </p>
-                  <div className="mt-4 flex items-center justify-between">
-                    <span className="font-medium text-primary-600">
-                      ${product.price}
-                    </span>
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+      {/* <AnimatePresence mode="wait"> */}
+      <div
+        key={currentPage}
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"
+      >
+        {currentProducts.map((product, index) => (
+          <motion.div
+            key={product.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{
+              opacity: 1,
+              y: 0,
+              transition: { delay: index * 0.1 },
+            }}
+            onClick={() => handleProductClick(product.id)}
+            className="group cursor-pointer"
+          >
+            <div className="rounded-lg border border-border overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-primary-200">
+              <div className="aspect-square bg-muted relative overflow-hidden">
+                <img
+                  src={product.imageUrl}
+                  alt={product.name}
+                  className="object-cover w-full h-full transform transition-transform duration-300 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+              <div className="p-4">
+                <h3 className="font-medium group-hover:text-primary-600 transition-colors line-clamp-1">
+                  {product.name}
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                  {product.description}
+                </p>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="font-medium text-primary-600">
+                    ${product.price}
+                  </span>
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                       ${
                         product.status === "in_stock"
                           ? "bg-green-100 text-green-800"
@@ -126,16 +127,16 @@ export default function ProductGrid({ products}) {
                           ? "bg-yellow-100 text-yellow-800"
                           : "bg-red-100 text-red-800"
                       }`}
-                    >
-                      {product.status.replace("_", " ")}
-                    </span>
-                  </div>
+                  >
+                    {product.status.replace("_", " ")}
+                  </span>
                 </div>
               </div>
-            </motion.div>
-          ))}
-        </motion.div>
-      </AnimatePresence>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+      {/* </AnimatePresence> */}
 
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border">
