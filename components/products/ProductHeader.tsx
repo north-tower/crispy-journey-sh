@@ -10,11 +10,13 @@ import { NewProductModal } from "./NewProductModal";
 interface ProductHeaderProps {
   viewMode: "table" | "grid";
   onViewModeChange: (mode: "table" | "grid") => void;
+  onSearch: (query: string) => void;  // Add prop for search query
 }
 
 export function ProductHeader({
   viewMode,
   onViewModeChange,
+  onSearch,
 }: ProductHeaderProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -43,7 +45,7 @@ export function ProductHeader({
           >
             New Product
           </motion.button>
-          <SearchBar />
+          <SearchBar onSearch={onSearch} />  {/* Pass onSearch to SearchBar */}
           <ViewToggle currentView={viewMode} onViewChange={onViewModeChange} />
         </div>
       </div>
