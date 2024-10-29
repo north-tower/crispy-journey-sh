@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { products } from "@/types/products";
 
-export default function ProductGrid() {
+
+export default function ProductGrid({ products}) {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
 
