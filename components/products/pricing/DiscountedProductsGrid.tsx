@@ -106,7 +106,7 @@ const DiscountedProductsGrid: React.FC<DiscountedProductsGridProps> = ({ items, 
               {/* Pricing Info */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 mt-2">
                 <span className="text-xl font-bold text-green-600 flex items-center">
-                  <DollarSign size={16} className="mr-1" /> ${item.discountedPrice.toFixed(2)}
+                  <DollarSign size={16} className="mr-1" /> {item.discountedPrice.toFixed(2)}
                 </span>
                 <span className="text-sm text-gray-400 line-through">${item.price.toFixed(2)}</span>
               </div>
@@ -137,14 +137,14 @@ const DiscountedProductsGrid: React.FC<DiscountedProductsGridProps> = ({ items, 
                       type="number"
                       value={editedPrice ?? item.discountedPrice}
                       onChange={(e) => setEditedPrice(parseFloat(e.target.value))}
-                      className="w-20 p-1 border border-gray-300 rounded-md text-center"
+                      className="w-20 p-1 border border-primary-300 rounded-full text-center"
                       placeholder="Price"
                     />
                     <input
                       type="number"
                       value={editedStock ?? item.stock}
                       onChange={(e) => setEditedStock(parseInt(e.target.value))}
-                      className="w-16 p-1 border border-gray-300 rounded-md text-center"
+                      className="w-16 p-1 border border-primary-300 rounded-full text-center"
                       placeholder="Stock"
                     />
                     <button onClick={() => saveEdit(item.id)} className="text-green-600">

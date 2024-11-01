@@ -150,7 +150,7 @@ const DiscountedProductsTable: React.FC<DiscountedProductsTableProps> = ({ items
                     type="number"
                     value={editedPrice || item.discountedPrice}
                     onChange={(e) => setEditedPrice(parseFloat(e.target.value))}
-                    className="w-20 p-1 border rounded text-right"
+                    className="w-20 p-1 border rounded-full border-primary-300 text-right"
                   />
                 ) : (
                   <span className="text-green-600 font-bold">${item.discountedPrice.toFixed(2)}</span>
@@ -168,7 +168,7 @@ const DiscountedProductsTable: React.FC<DiscountedProductsTableProps> = ({ items
                     type="number"
                     value={editedStock || item.stock}
                     onChange={(e) => setEditedStock(parseInt(e.target.value))}
-                    className="w-16 p-1 border rounded text-right"
+                    className="w-16 p-1 border rounded text-right rounded-full border-primary-300"
                   />
                 ) : (
                   <span
