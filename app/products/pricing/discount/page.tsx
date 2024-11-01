@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import DiscountedProductsTable from '@/components/products/pricing/DiscountedProductsTable';
-import DiscountedProductsGrid from '@/components/products/pricing/DiscountedProductsGrid';
+import DiscountedProductsTable from '@/components/products/pricing/PricingDiscount/DiscountedProductsTable';
+import DiscountedProductsGrid from '@/components/products/pricing/PricingDiscount/DiscountedProductsGrid';
 import { products } from '@/types/products';
 import { Search, Table, Grid, Plus, AlertCircle } from 'lucide-react';
 

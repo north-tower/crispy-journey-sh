@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import Sidebar from "@/components/products/pricing/SideBar";
 import { products } from "@/types/products";
-import DiscountedList from "@/components/products/pricing/DiscountedList";
+import DiscountedList from "@/components/products/pricing/PricingDiscount/DiscountedList";
 
 // Memoized components
 const MemoizedPricingHeader = memo(PricingHeader);

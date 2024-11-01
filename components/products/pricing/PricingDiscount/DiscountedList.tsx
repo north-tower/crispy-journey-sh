@@ -149,10 +149,9 @@ const DiscountedList: React.FC<DiscountedListProps> = ({ items, onViewAll }) => 
       {/* View All Button */}
       <div className="flex justify-end mt-6">
         <button
-      onClick={() =>     router.push(`/products/discount`)
-    }
-        
-          className="px-4 py-2 bg-primary-500 text-white text-sm font-semibold rounded-full shadow hover:bg-primary-600 transition duration-200 flex items-center"
+              onClick={() =>     router.push(`/products/pricing/discount`)
+            }
+      className="px-4 py-2 bg-primary-500 text-white text-sm font-semibold rounded-full shadow hover:bg-primary-600 transition duration-200 flex items-center"
         >
           View All
         </button>
