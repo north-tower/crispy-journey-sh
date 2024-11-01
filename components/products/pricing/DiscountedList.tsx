@@ -1,5 +1,5 @@
 // DiscountedList.tsx
-
+'use client'
 import React from 'react';
 import { motion } from 'framer-motion';
 import { DollarSign, Percent, Star, TrendingUp } from 'lucide-react';
@@ -50,14 +50,14 @@ const DiscountedList: React.FC<DiscountedListProps> = ({ items, onViewAll }) => 
   };
 
   return (
-    <div className="space-y-4 md:px-8  ">
+    <div className="space-y-4   ">
       {items.slice(0, 5).map((item) => (
       <motion.div
       key={item.id}
       className="p-4 bg-white rounded-lg shadow-lg flex flex-col sm:flex-row sm:justify-between sm:items-start border border-gray-200 hover:bg-gray-50 transition duration-200 w-64 sm:w-full"
       whileHover={{ scale: 1.02 }}
       onClick={() => handleRowClick(item.id)}
-    >
+      >
           {/* Product Image with Badge */}
           <div className="relative w-full sm:w-auto flex-shrink-0">
             <img
@@ -147,10 +147,12 @@ const DiscountedList: React.FC<DiscountedListProps> = ({ items, onViewAll }) => 
       ))}
 
       {/* View All Button */}
-      <div className="flex justify-center mt-6">
+      <div className="flex justify-end mt-6">
         <button
-          onClick={onViewAll}
-          className="px-4 py-2 bg-blue-500 text-white text-sm font-semibold rounded-lg shadow hover:bg-blue-600 transition duration-200 flex items-center"
+      onClick={() =>     router.push(`/products/discount`)
+    }
+        
+          className="px-4 py-2 bg-primary-500 text-white text-sm font-semibold rounded-full shadow hover:bg-primary-600 transition duration-200 flex items-center"
         >
           View All
         </button>

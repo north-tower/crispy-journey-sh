@@ -1,15 +1,60 @@
 import { motion } from "framer-motion";
 import { Menu, House, TicketPercent } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, FC } from "react";
 
-const Sidebar = ({
-  isCollapsed,
-  toggleSidebar,
-  setSelectedOption,
-  selectedOption,
-}) => {
-  const [isMobile, setIsMobile] = useState(false);
-  const [collapsed, setCollapsed] = useState(isCollapsed);
+// Define types for Sidebar props
+interface SidebarProps {
+  isCollapsed: boolean;
+  toggleSidebar: () => void;
+  setSelectedOption: (option: string) => void;
+  selectedOption: string;
+}
+
+// Define types for SidebarLink props
+interface SidebarLinkProps {
+  icon: JSX.Element;
+  label: string;
+  isCollapsed: boolean;
+  isActive: boolean;
+  onClick: () => void;
+}
+
+// SidebarLink Component
+const SidebarLink: FC<SidebarLinkProps> = ({ icon, label, isCollapsed, isActive, onClick }) => {
+  return (
+    <div
+      onClick={onClick}
+      className={`flex items-center p-2 w-full cursor-pointer transition duration-300
+        ${isActive ? "text-primary-700" : "text-gray-500"}
+        ${isCollapsed ? "justify-center" : "pl-4"}
+      `}
+    >
+      <div
+        className={`flex items-center gap-3 p-2 transition-all duration-300
+          ${isActive ? "bg-primary-100 text-primary-700 rounded-full" : "hover:bg-primary-50"}
+          ${isCollapsed ? "rounded-full" : "rounded-full pl-3 pr-6"}
+        `}
+      >
+        <div>{icon}</div>
+        {!isCollapsed && (
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="whitespace-nowrap"
+          >
+            {label}
+          </motion.span>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Sidebar Component
+const Sidebar: FC<SidebarProps> = ({ isCollapsed, toggleSidebar, setSelectedOption, selectedOption }) => {
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [collapsed, setCollapsed] = useState<boolean>(isCollapsed);
 
   useEffect(() => {
     const handleResize = () => {
@@ -31,11 +76,11 @@ const Sidebar = ({
       initial={{ width: collapsed ? 60 : 250 }}
       animate={{ width: collapsed ? 60 : 250 }}
       transition={{ duration: 0.3 }}
-      className={`h-full bg-white shadow-lg p-4 flex flex-col items-start mb-4 lg:mb-0 rounded-xl ml-3 lg:ml-0
-        ${collapsed ? "w-16 items-center" : "w-64"}
+      className={`h-full bg-white  p-4 flex flex-col items-start mb-4 lg:mb-0 rounded-xl ml-3 lg:ml-0
+        ${collapsed ? "w-16 items-center shadow-lg" : "w-64"}
       `}
     >
-      {/* Toggle Button - only shown on desktop */}
+      {/* Toggle Button */}
       {!isMobile && (
         <button
           onClick={toggleSidebar}
@@ -64,34 +109,6 @@ const Sidebar = ({
         />
       </nav>
     </motion.aside>
-  );
-};
-
-const SidebarLink = ({ icon, label, isCollapsed, isActive, onClick }) => {
-  return (
-    <div
-      onClick={onClick}
-      className={`flex items-center p-2 w-full cursor-pointer transition duration-300
-        ${isActive ? "text-primary-700" : "text-gray-500"}
-        ${isCollapsed ? "justify-center" : "pl-4"}
-      `}
-    >
-      {/* Unified Highlight Container for Icon and Label */}
-      <div
-        className={`flex items-center gap-3 p-2 transition-all duration-300
-          ${isActive ? "bg-primary-100 text-primary-700 rounded-full" : "hover:bg-primary-50"}
-          ${isCollapsed ? "rounded-full" : "rounded-full pl-3 pr-6"}
-        `}
-      >
-        {/* Icon */}
-        <div>{icon}</div>
-
-        {/* Label, only visible when sidebar is expanded */}
-        {!isCollapsed && (
-          <span className="whitespace-nowrap">{label}</span>
-        )}
-      </div>
-    </div>
   );
 };
 

@@ -89,27 +89,28 @@ export default function PricingPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col lg:flex-row p-4 lg:p-0 space-x-1">
-        <Sidebar
-          isCollapsed={isSidebarCollapsed}
-          toggleSidebar={toggleSidebar}
-          setSelectedOption={setSelectedOption}
-          selectedOption={selectedOption}
-        />
+     <div className="flex flex-col lg:flex-row p-4 lg:p-0 lg:gap-6">
+  <Sidebar
+    isCollapsed={isSidebarCollapsed}
+    toggleSidebar={toggleSidebar}
+    setSelectedOption={setSelectedOption}
+    selectedOption={selectedOption}
+  />
 
-        {/* Main Content Area */}
-        <div className={`flex-1 transition-all ${isSidebarCollapsed ? "md:ml-16" : "ml-64"} lg:ml-0`}>
-          <Suspense fallback={<LoadingState />}>
-            {error ? (
-              <ErrorState error={error} />
-            ) : selectedOption === "Home" ? (
-              <PricingContent metrics={metrics} changes={changes} suggestions={suggestions} loading={loading} />
-            ) : (
-              <DiscountedList items={products} />
-            )}
-          </Suspense>
-        </div>
-      </div>
+  {/* Main Content Area */}
+  <div className={`flex-1 transition-all ${isSidebarCollapsed ? "md:ml-16" : "ml-64"} lg:ml-0`}>
+    <Suspense fallback={<LoadingState />}>
+      {error ? (
+        <ErrorState error={error} />
+      ) : selectedOption === "Home" ? (
+        <PricingContent metrics={metrics} changes={changes} suggestions={suggestions} loading={loading} />
+      ) : (
+        <DiscountedList items={products} />
+      )}
+    </Suspense>
+  </div>
+</div>
+
     </DashboardLayout>
   );
 }
