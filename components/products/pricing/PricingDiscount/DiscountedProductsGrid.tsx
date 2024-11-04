@@ -1,19 +1,6 @@
 import React, { useState } from 'react';
 import { DollarSign, Percent, Star, TrendingUp, Edit2, Trash2, BarChart, Save, X, RefreshCw } from 'lucide-react';
-
-export interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  discountedPrice: number;
-  stock: number;
-  status: "in_stock" | "low_stock" | "out_of_stock";
-  createdAt: string;
-  imageUrl: string;
-  views: number;
-  sales: number;
-}
+import { Product } from '@/types/products';
 
 interface DiscountedProductsGridProps {
   items: Product[];
@@ -25,7 +12,13 @@ interface DiscountedProductsGridProps {
 
 const ITEMS_PER_PAGE = 6;
 
-const DiscountedProductsGrid: React.FC<DiscountedProductsGridProps> = ({ items, onSaveEdit, onDeleteProduct, onViewAnalytics, onRestockProduct }) => {
+const DiscountedProductsGrid: React.FC<DiscountedProductsGridProps> = ({
+  items,
+  onSaveEdit,
+  onDeleteProduct,
+  onViewAnalytics,
+  onRestockProduct,
+}) => {
   const [editMode, setEditMode] = useState<string | null>(null);
   const [editedPrice, setEditedPrice] = useState<number | null>(null);
   const [editedStock, setEditedStock] = useState<number | null>(null);
@@ -83,12 +76,12 @@ const DiscountedProductsGrid: React.FC<DiscountedProductsGridProps> = ({ items, 
                 className="w-full h-48 object-cover opacity-90 hover:opacity-100 transition-opacity duration-300"
               />
               {isNewProduct(item.createdAt) && (
-                <span className="absolute top-2 left-2 bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded-full flex items-center shadow-md">
+                <span className="absolute top-2 left-2 bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded-full flex items-center shadow-md animate-pulse">
                   <Star size={12} className="mr-1" /> New
                 </span>
               )}
-              <span className="absolute top-2 right-2 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-md">
-                {calculateProfitMargin(item.price, item.discountedPrice).toFixed(1)}% Off
+              <span className="absolute top-2 right-2 bg-primary-600 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-md">
+                {calculateProfitMargin(item.price, item.discountedPrice).toFixed(1)}% Margin
               </span>
             </div>
 
@@ -97,21 +90,21 @@ const DiscountedProductsGrid: React.FC<DiscountedProductsGridProps> = ({ items, 
               <h3 className="text-lg font-semibold text-gray-900 truncate">{item.name}</h3>
               <p className="text-sm text-gray-500 line-clamp-2">{item.description}</p>
 
-              {/* Sales and View Stats */}
+              {/* Views and Sales Stats */}
               <div className="flex justify-between items-center mt-2 text-xs text-gray-500">
-                <span>Views: 56</span>
-                <span>Sales: 3433</span>
+                <span>Views: {item.views}</span>
+                <span>Sales: {item.sales}</span>
               </div>
 
               {/* Pricing Info */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 mt-2">
+              <div className="flex items-center space-x-2 mt-2">
                 <span className="text-xl font-bold text-green-600 flex items-center">
                   <DollarSign size={16} className="mr-1" /> {item.discountedPrice.toFixed(2)}
                 </span>
                 <span className="text-sm text-gray-400 line-through">${item.price.toFixed(2)}</span>
               </div>
 
-              {/* Stock and Sales Potential */}
+              {/* Stock Status */}
               <p
                 className={`text-xs font-semibold px-2 py-1 rounded-full inline-flex items-center mt-2 ${
                   item.status === "in_stock"
@@ -132,7 +125,6 @@ const DiscountedProductsGrid: React.FC<DiscountedProductsGridProps> = ({ items, 
               <div className="flex items-center space-x-2 mt-4">
                 {editMode === item.id ? (
                   <>
-                    {/* Inline Editing Fields for Price and Stock */}
                     <input
                       type="number"
                       value={editedPrice ?? item.discountedPrice}
@@ -156,16 +148,16 @@ const DiscountedProductsGrid: React.FC<DiscountedProductsGridProps> = ({ items, 
                   </>
                 ) : (
                   <>
-                    <button onClick={() => onViewAnalytics(item.id)} className="text-gray-500 hover:text-gray-700 flex items-center">
-                      <BarChart size={16} /> 
+                    <button onClick={() => onViewAnalytics(item.id)} className="text-gray-500 hover:text-gray-700 flex items-center" data-tip="View Analytics">
+                      <BarChart size={16} />
                     </button>
-                    <button onClick={() => startEdit(item)} className="text-blue-600 hover:text-blue-800 flex items-center">
-                      <Edit2 size={16} /> 
+                    <button onClick={() => startEdit(item)} className="text-blue-600 hover:text-blue-800 flex items-center" data-tip="Edit Product">
+                      <Edit2 size={16} />
                     </button>
-                    <button onClick={() => onRestockProduct(item.id)} className="text-yellow-600 hover:text-yellow-800 flex items-center">
-                      <RefreshCw size={16} /> 
+                    <button onClick={() => onRestockProduct(item.id)} className="text-yellow-600 hover:text-yellow-800 flex items-center" data-tip="Restock Product">
+                      <RefreshCw size={16} />
                     </button>
-                    <button onClick={() => onDeleteProduct(item.id)} className="text-red-600 hover:text-red-800 flex items-center">
+                    <button onClick={() => onDeleteProduct(item.id)} className="text-red-600 hover:text-red-800 flex items-center" data-tip="Delete Product">
                       <Trash2 size={16} />
                     </button>
                   </>
