@@ -66,15 +66,6 @@ const DiscountedProductsTable: React.FC<DiscountedProductsTableProps> = ({ items
     setEditedStock(null);
   };
 
-  // Filter modal toggle
-  const toggleFilterModal = () => {
-    setIsFilterOpen(!isFilterOpen);
-  };
-
-  const applyFilter = () => {
-    setIsFilterOpen(false);
-  };
-
   const filteredAndSortedItems = items
     .filter((item) => {
       const profitMargin = calculateProfitMargin(item.price, item.discountedPrice);
@@ -138,7 +129,7 @@ const DiscountedProductsTable: React.FC<DiscountedProductsTableProps> = ({ items
             currentItems.map((item) => (
               <tr
                 key={item.id}
-                className={clsx("border-b border-gray-200 hover:bg-gray-100 transition", editRow === item.id && "bg-primary-100")}
+                className={clsx("border-b border-gray-200 hover:bg-gray-100", editRow === item.id && "bg-primary-100")}
               >
                 <td className="p-4">
                   <input
