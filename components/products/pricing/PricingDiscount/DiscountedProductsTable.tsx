@@ -100,7 +100,7 @@ const DiscountedProductsTable: React.FC<DiscountedProductsTableProps> = ({ items
       </div>
 
       {/* Table */}
-      <table className="w-full bg-white rounded-lg shadow-md overflow-hidden">
+      <table className="w-full bg-white rounded-lg shadow-md overflow-x-auto">
         <thead>
           <tr className="bg-gray-200 text-left text-sm font-semibold text-gray-800">
             <th className="p-4">
