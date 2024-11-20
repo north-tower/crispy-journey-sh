@@ -6,12 +6,49 @@ import Link from "next/link";
 
 export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Add your registration logic here
-    setTimeout(() => setIsLoading(false), 1500); // Simulate API call
+    setError(null);
+    setSuccess(null);
+
+    const formData = new FormData(e.currentTarget as HTMLFormElement);
+
+    const payload = {
+      firstName: formData.get("firstName"),
+      lastName: formData.get("lastName"),
+      email: formData.get("email"),
+      password: formData.get("password"),
+      phone: formData.get("phone") || undefined,
+      role: "SELLER", // Adjust this based on the user's role (e.g., EMPLOYEE)
+      companyId: formData.get("companyId") || undefined,
+      employeeId: formData.get("employeeId") || undefined,
+    };
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to register.");
+      }
+
+      const data = await response.json();
+      setSuccess("Account created successfully!");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -110,6 +147,9 @@ export function RegisterForm() {
         </label>
       </div>
 
+      {error && <p className="text-sm text-red-600">{error}</p>}
+      {success && <p className="text-sm text-green-600">{success}</p>}
+
       <motion.button
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.99 }}
@@ -161,3 +201,4 @@ export function RegisterForm() {
     </form>
   );
 }
+
