@@ -20,7 +20,7 @@ export function middleware(req: NextRequest) {
     "/auth/login",
     "/auth/register",
     "/auth/forgot",
-    "/",
+    "/auth/reset",
   ];
   if (unprotectedRoutes.some((route) => currentPath.startsWith(route))) {
     return NextResponse.next(); // Allow unprotected routes
