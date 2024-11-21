@@ -7,23 +7,33 @@ import { CompletedFilters } from "@/components/orders/completed/CompletedFilters
 import { CompletedHeader } from "@/components/orders/completed/CompletedHeader";
 import { CompletedOrdersList } from "@/components/orders/completed/CompletedOrdersList";
 import { debounce } from "lodash";
+import dayjs from "dayjs";
 
 export default function CompletedOrdersPage() {
   const { orders, loading, error, refreshOrders } = useOrders("completed");
   const [searchQuery, setSearchQuery] = useState("");
-  const [dateFilter, setDateFilter] = useState<"week" | "month" | "year">(
-    "month"
-  );
+  const [dateFilter, setDateFilter] = useState<"week" | "month" | "year">("month");
   const [view, setView] = useState<"grid" | "table">("table");
 
-  // Memoize filtered orders
+  // Filter orders based on search query and date filter
   const filteredOrders = useMemo(() => {
-    return orders.filter(
+    const filteredBySearch = orders.filter(
       (order) =>
         order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.customerName.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [orders, searchQuery]);
+
+    const filteredByDate = filteredBySearch.filter((order) => {
+      const orderDate = dayjs(order.createdAt);
+      const now = dayjs();
+      if (dateFilter === "week") return orderDate.isAfter(now.subtract(1, "week"));
+      if (dateFilter === "month") return orderDate.isAfter(now.subtract(1, "month"));
+      if (dateFilter === "year") return orderDate.isAfter(now.subtract(1, "year"));
+      return true;
+    });
+
+    return filteredByDate;
+  }, [orders, searchQuery, dateFilter]);
 
   // Debounce date filter change
   const handleDateFilterChange = useCallback(
@@ -33,12 +43,20 @@ export default function CompletedOrdersPage() {
     []
   );
 
+  // Debounce search input
+  const handleSearchChange = useCallback(
+    debounce((query: string) => {
+      setSearchQuery(query);
+    }, 300),
+    []
+  );
+
   return (
     <DashboardLayout>
       <div className="p-6 space-y-6">
         <CompletedHeader
           totalOrders={filteredOrders.length}
-          onSearch={setSearchQuery}
+          onSearch={handleSearchChange}
           searchQuery={searchQuery}
           onRefresh={refreshOrders}
           dateFilter={dateFilter}

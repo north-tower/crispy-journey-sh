@@ -22,12 +22,14 @@ interface OrderFiltersProps {
   selectedStatus: string;
   onStatusChange: (status: string) => void;
   orderCounts: OrderCounts;
+  onResetStatus: () => void; // Add a reset handler
 }
 
 export function OrderFilters({
   selectedStatus,
   onStatusChange,
   orderCounts,
+  onResetStatus,
 }: OrderFiltersProps) {
   const statuses = [
     {
@@ -129,7 +131,18 @@ export function OrderFilters({
             2
           </span>
         </div>
+      <div className="p-4 border-t border-gray-100 space-y-3">
+
+        <button
+          onClick={onResetStatus}
+          className="mt-4 w-full text-sm text-center text-gray-500 hover:text-gray-700"
+        >
+          Reset Status
+        </button>
+
       </div>
+      </div>
+
     </div>
   );
 }

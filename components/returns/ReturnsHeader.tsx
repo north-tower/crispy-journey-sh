@@ -6,6 +6,8 @@ interface ReturnsHeaderProps {
   onSearch: (query: string) => void;
   onRefresh: () => void;
   searchQuery: string;
+  toggleFilterModal: () => void;
+
 }
 
 export function ReturnsHeader({
@@ -13,6 +15,8 @@ export function ReturnsHeader({
   onSearch,
   onRefresh,
   searchQuery,
+  toggleFilterModal
+
 }: ReturnsHeaderProps) {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -54,6 +58,7 @@ export function ReturnsHeader({
 
         <motion.button
           whileHover={{ scale: 1.02 }}
+          onClick={toggleFilterModal}
           whileTap={{ scale: 0.98 }}
           className="p-2 text-gray-500 hover:text-gray-700 bg-white border border-gray-200 
             rounded-xl hover:border-gray-300 transition-colors"

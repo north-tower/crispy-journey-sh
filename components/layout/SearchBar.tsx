@@ -1,27 +1,60 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Search,
-  Command,
-  Calendar,
-  Settings,
-  HelpCircle,
-  Mail,
-} from "lucide-react";
+import { Search, Command, Calendar, Settings, HelpCircle, Mail } from "lucide-react";
 import { cn } from "@/lib/utils/utils";
+import { CalendarPopover } from "../dashboard/CalendarPopover";
+import { useRouter } from "next/navigation";
 
 const quickActions = [
   { icon: Calendar, label: "Calendar", shortcut: "⌘K C" },
-  { icon: Settings, label: "Settings", shortcut: "⌘K S" },
-  { icon: HelpCircle, label: "Help Center", shortcut: "⌘K H" },
+  { icon: Settings, label: "Settings", shortcut: "⌘K S", href: "/settings/store" },
+  { icon: HelpCircle, label: "Help Center", shortcut: "⌘K H", href: "/help" },
   { icon: Mail, label: "Inbox", shortcut: "⌘K I" },
 ];
 
 export function SearchBar() {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const [isCalendarVisible, setIsCalendarVisible] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const calendarRef = useRef(null);
+  const router = useRouter();
+
+  const scheduledProducts = {
+    "2024-11-05": { items: ["Product A", "Product B"], type: "launch" },
+    "2024-11-12": { items: ["Product C"], type: "meeting" },
+    "2024-11-18": { items: ["Product D", "Product E", "Product F"], type: "workshop" },
+    "2024-11-25": { items: ["Product G"], type: "launch" }
+  };
+
+  const eventStyles = {
+    launch: "bg-gradient-to-br from-primary-200 to-primary-500 text-white",
+    meeting: "bg-gradient-to-br from-yellow-400 to-red-500 text-white",
+    workshop: "bg-gradient-to-br from-purple-400 to-pink-500 text-white"
+  };
+
+  const goToPreviousMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+  };
+
+  const goToNextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+  };
+
+  // Close calendar if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (calendarRef.current && !calendarRef.current.contains(event.target)) {
+        setIsCalendarVisible(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="hidden sm:block relative group">
@@ -83,29 +116,60 @@ export function SearchBar() {
                   Quick Actions
                 </p>
               </div>
-              {quickActions.map((action, index) => (
-                <motion.button
-                  key={action.label}
-                  whileHover={{
-                    x: 4,
-                    backgroundColor: "rgb(249 250 251)",
-                  }}
-                  className="w-full px-3 py-2 flex items-center justify-between text-sm"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center">
-                      <action.icon className="w-4 h-4 text-gray-500" />
+              {quickActions.map((action) => (
+                action.href ? (
+                  <motion.a
+                    key={action.label}
+                    href={action.href}
+                    className="w-full px-3 py-2 flex items-center justify-between text-sm"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center">
+                        <action.icon className="w-4 h-4 text-gray-500" />
+                      </div>
+                      <span className="text-gray-600">{action.label}</span>
                     </div>
-                    <span className="text-gray-600">{action.label}</span>
-                  </div>
-                  <span className="text-xs text-gray-400">
-                    {action.shortcut}
-                  </span>
-                </motion.button>
+                    <span className="text-xs text-gray-400">
+                      {action.shortcut}
+                    </span>
+                  </motion.a>
+                ) : (
+                  <motion.button
+                    key={action.label}
+                    onMouseEnter={() => action.label === "Calendar" && setIsCalendarVisible(true)}
+                    onMouseLeave={() => action.label === "Calendar" &&  setIsCalendarVisible(false)}
+                    className="w-full px-3 py-2 flex items-center justify-between text-sm"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center">
+                        <action.icon className="w-4 h-4 text-gray-500" />
+                      </div>
+                      <span className="text-gray-600">{action.label}</span>
+                    </div>
+                    <span className="text-xs text-gray-400">
+                      {action.shortcut}
+                    </span>
+                  </motion.button>
+                )
               ))}
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Calendar Popover */}
+        <div
+          onMouseEnter={() => setIsCalendarVisible(true)}
+          onMouseLeave={() => setIsCalendarVisible(false)}
+        >
+          <CalendarPopover
+            isVisible={isCalendarVisible}
+            currentMonth={currentMonth}
+            goToPreviousMonth={goToPreviousMonth}
+            goToNextMonth={goToNextMonth}
+            scheduledProducts={scheduledProducts}
+            eventStyles={eventStyles}
+          />
+        </div>
       </div>
     </div>
   );

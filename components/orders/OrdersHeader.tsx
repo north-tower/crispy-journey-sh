@@ -8,6 +8,8 @@ interface OrdersHeaderProps {
   onSearch: (query: string) => void;
   searchQuery: string;
   onRefresh: () => void;
+  toggleFilterModal: () => void;
+
 }
 
 export function OrdersHeader({
@@ -16,6 +18,7 @@ export function OrdersHeader({
   onSearch,
   searchQuery,
   onRefresh,
+  toggleFilterModal
 }: OrdersHeaderProps) {
   return (
     <div className="space-y-4">
@@ -58,6 +61,7 @@ export function OrdersHeader({
           </motion.button>
 
           <motion.button
+            onClick={toggleFilterModal}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className="p-2 text-gray-500 hover:text-gray-700 bg-white border border-gray-200 rounded-xl hover:border-gray-300 transition-colors"
