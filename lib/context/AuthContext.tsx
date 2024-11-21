@@ -1,7 +1,5 @@
 "use client";
-import { createContext, useContext, useEffect, useState } from "react";
 import { useAuthStore } from "@/lib/store/authStore";
-
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>; // Zustand handles the global state; no need for additional Context.

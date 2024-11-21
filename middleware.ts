@@ -16,7 +16,12 @@ export function middleware(req: NextRequest) {
   }
 
   // Define unprotected routes
-  const unprotectedRoutes = ["/auth/login", "/auth/register"];
+  const unprotectedRoutes = [
+    "/auth/login",
+    "/auth/register",
+    "/auth/forgot",
+    "/",
+  ];
   if (unprotectedRoutes.some((route) => currentPath.startsWith(route))) {
     return NextResponse.next(); // Allow unprotected routes
   }
