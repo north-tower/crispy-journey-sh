@@ -1,5 +1,4 @@
-// components/dashboard/analytics/RevenueChart.tsx
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -11,41 +10,40 @@ import {
   ReferenceLine,
   Cell,
 } from "recharts";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
-  Calendar,
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  Target,
   ArrowUpRight,
   ArrowDownRight,
+  DollarSign,
+  Target,
   PieChart,
   Activity,
-  LucideIcon,
 } from "lucide-react";
-import {
-  formatCurrency,
-  formatNumber,
-  calculateGrowth,
-} from "@/lib/utils/charts";
+import { useDashboardStats } from "@/lib/hooks/useDashboardStats";
+import { formatCurrency, calculateGrowth } from "@/lib/utils/charts";
 import { SalesTrend } from "@/types/analytics";
+import MyBarChart from "./MyBarChart";
 
 interface RevenueChartProps {
-  data?: SalesTrend[];
   target?: number;
 }
 
-export function RevenueChart({ data, target = 100000 }: RevenueChartProps) {
+export function RevenueChart({ target = 100000 }: RevenueChartProps) {
+  const { stats, loading, error, filterByTimeRange } = useDashboardStats();
+  const [timeRange, setTimeRange] = useState<"weekly" | "monthly" | "quarterly">("monthly");
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
-  const [timeRange, setTimeRange] = useState<"week" | "month" | "quarter">(
-    "month"
-  );
   const [showTooltip, setShowTooltip] = useState(false);
 
-  // Memoized calculations
-  const stats = useMemo(() => {
-    if (!data || data.length === 0) {
+  // Fetch data based on the selected time range
+  useEffect(() => {
+    filterByTimeRange(timeRange);
+  }, [timeRange, filterByTimeRange]);
+
+  // Memoized calculations for stats
+  const statsData = useMemo(() => {
+    const salesTrends = stats?.salesTrends || [];
+
+    if (salesTrends.length === 0) {
       return {
         totalRevenue: 0,
         averageRevenue: 0,
@@ -56,27 +54,29 @@ export function RevenueChart({ data, target = 100000 }: RevenueChartProps) {
       };
     }
 
-    const totalRevenue = data.reduce(
-      (sum, item) => sum + (item.revenue || 0),
+    const totalRevenue = salesTrends.reduce(
+      (sum, item) => sum + parseFloat(String(item.sales || "0")),
       0
     );
-    const averageRevenue = totalRevenue / data.length;
 
-    const midPoint = Math.floor(data.length / 2);
-    const previousPeriodRevenue = data
-      .slice(0, midPoint)
-      .reduce((sum, item) => sum + (item.revenue || 0), 0);
+    const averageRevenue = totalRevenue / salesTrends.length;
 
-    const currentPeriodRevenue = data
+    const midPoint = Math.floor(salesTrends.length / 2);
+
+    const previousPeriodRevenue = salesTrends
+    .slice(0, midPoint)
+    .reduce((sum, item) => sum + parseFloat(String(item.sales || "0")), 0);
+  
+      const currentPeriodRevenue = salesTrends
       .slice(midPoint)
-      .reduce((sum, item) => sum + (item.revenue || 0), 0);
-
-    const revenueValues = data.map((d) => d.revenue || 0);
+      .reduce((sum, item) => sum + parseFloat(String(item.sales || "0")), 0);
+    
+      const revenueValues = salesTrends.map((d) => parseFloat(String(d.sales || "0")));
     const maxRevenue = Math.max(...revenueValues);
     const minRevenue = Math.min(...revenueValues);
 
     const growth = calculateGrowth(previousPeriodRevenue, currentPeriodRevenue);
-    const targetAchievement = (totalRevenue / (target * data.length)) * 100;
+    const targetAchievement = (totalRevenue / (target * salesTrends.length)) * 100;
 
     return {
       totalRevenue,
@@ -86,20 +86,40 @@ export function RevenueChart({ data, target = 100000 }: RevenueChartProps) {
       minRevenue,
       targetAchievement,
     };
-  }, [data, target]);
+  }, [stats, target]);
 
-  const getBarColor = (value: number) => {
-    if (value >= target) return "#10B981";
-    if (value >= target * 0.8) return "#6366F1";
-    return "#F59E0B";
+  
+
+  // Dynamic bar colors based on the target
+  const getBarColor = (revenue) => {
+    if (revenue > 200) {
+      return "#4CAF50"; // Green for high revenue
+    }
+    return "#FFC107"; // Yellow for low revenue
   };
+  
 
+  // Time Range Options
   const timeRangeOptions = [
-    { value: "week", label: "Weekly" },
-    { value: "month", label: "Monthly" },
-    { value: "quarter", label: "Quarterly" },
+    { value: "weekly", label: "Weekly" },
+    { value: "monthly", label: "Monthly" },
+    { value: "quarterly", label: "Quarterly" },
   ];
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
+  if (error || !stats?.salesTrends) {
+    return <div>Failed to load revenue data</div>;
+  }
+  const chartData = stats.salesTrends.map((trend) => ({
+    date: new Date(trend.date).toLocaleDateString(), // Formats the date
+    revenue: parseFloat(String(trend.sales || "0")),
+  }));
+  
+  
+  
+  console.log("BarChart Data:", chartData);
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-6">
       <div className="space-y-6">
@@ -112,19 +132,17 @@ export function RevenueChart({ data, target = 100000 }: RevenueChartProps) {
             <div className="flex items-center gap-2 mt-1">
               <div
                 className={`flex items-center gap-1 text-sm ${
-                  stats.growth > 0 ? "text-green-600" : "text-red-600"
+                  statsData.growth > 0 ? "text-green-600" : "text-red-600"
                 }`}
               >
-                {stats.growth > 0 ? (
+                {statsData.growth > 0 ? (
                   <ArrowUpRight className="w-4 h-4" />
                 ) : (
                   <ArrowDownRight className="w-4 h-4" />
                 )}
-                {Math.abs(stats.growth)}% vs previous period
+                {Math.abs(statsData.growth)}% vs previous period
               </div>
-              <span className="text-sm text-gray-500">
-                Target Achievement: {stats.targetAchievement.toFixed(1)}%
-              </span>
+             
             </div>
           </div>
 
@@ -152,42 +170,39 @@ export function RevenueChart({ data, target = 100000 }: RevenueChartProps) {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <StatsCard
             title="Total Revenue"
-            value={formatCurrency(stats.totalRevenue)}
+            value={formatCurrency(statsData.totalRevenue)}
             icon={DollarSign}
-            trend={stats.growth}
+            trend={statsData.growth}
             variant="primary"
           />
           <StatsCard
             title="Average Revenue"
-            value={formatCurrency(stats.averageRevenue)}
+            value={formatCurrency(statsData.averageRevenue)}
             icon={Activity}
             variant="secondary"
           />
-          <StatsCard
-            title="Target Revenue"
-            value={formatCurrency(target)}
-            icon={Target}
-            variant="secondary"
-            subtitle={`${stats.targetAchievement.toFixed(1)}% achieved`}
-          />
+         
           <StatsCard
             title="Revenue Range"
-            value={`${formatCurrency(stats.minRevenue)} - ${formatCurrency(
-              stats.maxRevenue
+            value={`${formatCurrency(statsData.minRevenue)} - ${formatCurrency(
+              statsData.maxRevenue
             )}`}
             icon={PieChart}
             variant="secondary"
           />
         </div>
 
-        {/* Chart Section */}
-        <div className="h-[400px] mt-6">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={data}
+
+       {/* Chart Section */}
+<div className="h-[400px] mt-6">
+  <ResponsiveContainer width="100%" height="100%">
+  <BarChart
+  width={600}
+  height={400}
+              data={chartData}
               onMouseMove={(e) => {
                 if (e.activeTooltipIndex !== undefined) {
                   setHoveredBar(e.activeTooltipIndex);
@@ -218,7 +233,7 @@ export function RevenueChart({ data, target = 100000 }: RevenueChartProps) {
                 content={({ active, payload }) => {
                   if (!active || !payload?.length) return null;
 
-                  const data = payload[0].payload;
+                  const chartData = payload[0].payload;
                   return (
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
@@ -226,31 +241,26 @@ export function RevenueChart({ data, target = 100000 }: RevenueChartProps) {
                       className="bg-white p-4 rounded-xl shadow-lg border border-gray-100"
                     >
                       <p className="text-sm font-medium text-gray-900">
-                        {data.date}
+                        {chartData.date}
                       </p>
                       <div className="mt-2 space-y-1">
                         <p className="text-sm flex items-center justify-between gap-4">
                           <span className="text-gray-500">Revenue:</span>
                           <span className="font-medium text-primary-600">
-                            {formatCurrency(data.revenue)}
+                            {formatCurrency(chartData.revenue)}
                           </span>
                         </p>
-                        <p className="text-sm flex items-center justify-between gap-4">
-                          <span className="text-gray-500">Target:</span>
-                          <span className="font-medium text-gray-600">
-                            {formatCurrency(target)}
-                          </span>
-                        </p>
+                       
                         <p className="text-sm flex items-center justify-between gap-4">
                           <span className="text-gray-500">Achievement:</span>
                           <span
                             className={`font-medium ${
-                              data.revenue >= target
+                              chartData.revenue >= target
                                 ? "text-green-600"
                                 : "text-yellow-600"
                             }`}
                           >
-                            {((data.revenue / target) * 100).toFixed(1)}%
+                            {((chartData.revenue / target) * 100).toFixed(1)}%
                           </span>
                         </p>
                       </div>
@@ -270,7 +280,7 @@ export function RevenueChart({ data, target = 100000 }: RevenueChartProps) {
                 }}
               />
               <Bar dataKey="revenue" radius={[4, 4, 0, 0]} maxBarSize={60}>
-                {data?.map((entry, index) => (
+                {chartData?.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={getBarColor(entry.revenue ?? 0)}
@@ -279,71 +289,19 @@ export function RevenueChart({ data, target = 100000 }: RevenueChartProps) {
                 ))}
               </Bar>
             </BarChart>
-          </ResponsiveContainer>
-        </div>
+  </ResponsiveContainer>
+</div>
 
-        {/* Insights Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 border-t border-gray-100">
-          <InsightCard
-            title="Performance Analysis"
-            metrics={[
-              {
-                label: "Peak Revenue Day",
-                value: formatCurrency(stats.maxRevenue),
-                trend: "up",
-              },
-              {
-                label: "Target Achievement",
-                value: `${stats.targetAchievement.toFixed(1)}%`,
-                trend: stats.targetAchievement >= 100 ? "up" : "down",
-              },
-            ]}
-          />
-          <InsightCard
-            title="Growth Metrics"
-            metrics={[
-              {
-                label: "Revenue Growth",
-                value: `${stats.growth}%`,
-                trend: stats.growth > 0 ? "up" : "down",
-              },
-              {
-                label: "Average Performance",
-                value: formatCurrency(stats.averageRevenue),
-                trend: "neutral",
-              },
-            ]}
-          />
-          <InsightCard
-            title="Target Insights"
-            metrics={[
-              {
-                label: "Days Above Target",
-                value: `${
-                  (data ?? []).filter((d) => (d.revenue ?? 0) >= target).length
-                }/${data?.length ?? 0}`,
-                trend: "neutral",
-              },
-              {
-                label: "Target Gap",
-                value: formatCurrency(
-                  Math.max(0, target * (data?.length ?? 0) - stats.totalRevenue)
-                ),
-                trend: "down",
-              },
-            ]}
-          />
-        </div>
       </div>
     </div>
   );
 }
 
-// Helper Components
+// Helper Components (StatsCard, InsightCard)
 interface StatsCardProps {
   title: string;
   value: string;
-  icon: LucideIcon;
+  icon: React.ElementType;
   trend?: number;
   variant?: "primary" | "secondary";
   subtitle?: string;
@@ -397,40 +355,5 @@ function StatsCard({
       )}
       {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
     </motion.div>
-  );
-}
-
-interface InsightCardProps {
-  title: string;
-  metrics: {
-    label: string;
-    value: string;
-    trend: "up" | "down" | "neutral";
-  }[];
-}
-
-function InsightCard({ title, metrics }: InsightCardProps) {
-  return (
-    <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
-      <h4 className="text-sm font-medium text-gray-900">{title}</h4>
-      <div className="mt-2 space-y-2">
-        {metrics.map((metric, index) => (
-          <div key={index} className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">{metric.label}</span>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-900">
-                {metric.value}
-              </span>
-              {metric.trend === "up" && (
-                <TrendingUp className="w-4 h-4 text-green-500" />
-              )}
-              {metric.trend === "down" && (
-                <TrendingDown className="w-4 h-4 text-red-500" />
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
   );
 }

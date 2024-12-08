@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { toast } from "react-toastify";
 
 export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -29,7 +30,7 @@ export function RegisterForm() {
     };
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/auth/register`, {
+      const response = await fetch(`http://localhost:8900/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -43,7 +44,7 @@ export function RegisterForm() {
       }
 
       const data = await response.json();
-      setSuccess("Account created successfully!");
+      toast.success("Registration successful! Check your email for the verification link.");
     } catch (err: any) {
       setError(err.message);
     } finally {

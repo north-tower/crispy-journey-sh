@@ -19,7 +19,7 @@ export default function CompletedOrdersPage() {
   const filteredOrders = useMemo(() => {
     const filteredBySearch = orders.filter(
       (order) =>
-        order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.customerName.toLowerCase().includes(searchQuery.toLowerCase())
     );
 

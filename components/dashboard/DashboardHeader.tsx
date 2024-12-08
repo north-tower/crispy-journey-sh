@@ -50,12 +50,12 @@ export const DashboardHeader = memo(function DashboardHeader({
       </div>
 
       <div className="flex items-center gap-3 self-stretch sm:self-auto">
-        <TimeRangeSelector
+        {/* <TimeRangeSelector
           timeRange={timeRange}
           showDropdown={showTimeRangeDropdown}
           onToggle={onTimeRangeToggle}
           onChange={onTimeRangeChange}
-        />
+        /> */}
         <ActionButtons onRefresh={onRefresh} loading={loading} />
       </div>
     </div>

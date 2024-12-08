@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, memo, Suspense } from "react";
+import { useState, useCallback, memo, Suspense, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -161,41 +161,11 @@ const Header = memo(function Header({
   );
 });
 
-// Quick stats grid
-const QuickStats = memo(function QuickStats() {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <InventoryStatCard
-        title="Total Stock Value"
-        value="$124,567"
-        change={12.5}
-        icon={Box}
-        color="primary"
-      />
-      <InventoryStatCard
-        title="Low Stock Items"
-        value="23"
-        change={-5.2}
-        icon={AlertCircle}
-        color="warning"
-      />
-      <InventoryStatCard
-        title="Incoming Stock"
-        value="45"
-        change={8.7}
-        icon={Truck}
-        color="success"
-      />
-      <InventoryStatCard
-        title="Stock Turnover"
-        value="2.4x"
-        change={3.1}
-        icon={BarChart2}
-        color="info"
-      />
-    </div>
-  );
-});
+
+
+
+
+
 
 // Main page component
 export default function InventoryPage() {
@@ -203,6 +173,46 @@ export default function InventoryPage() {
     "day" | "week" | "month"
   >("week");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [stats, setStats] = useState({
+    current: {
+      totalStockValue: "0.00",
+      lowStockItems: "0",
+      incomingStock: "0",
+      stockTurnover: "0.0",
+    },
+    change: {
+      totalStockValue: 0,
+      lowStockItems: 0,
+      incomingStock: 0,
+      stockTurnover: 0,
+    },
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    const fetchStats = async () => {
+      setLoading(true);
+      setError(null);
+  
+      try {
+        const response = await fetch(
+          "http://localhost:8900/api/products/overview/quick-stats?timeframe=month"
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch stats");
+        }
+        const data = await response.json();
+        setStats(data);
+      } catch (err) {
+        setError(err.message || "An error occurred");
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchStats();
+  }, []); // Empty dependency array ensures this runs only once on component mount
+  
 
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
@@ -213,6 +223,42 @@ export default function InventoryPage() {
       setIsRefreshing(false);
     }
   }, []);
+
+  // Quick stats grid
+const QuickStats = memo(function QuickStats() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+     <InventoryStatCard
+        title="Total Stock Value"
+        value={`$${Number(stats.current.totalStockValue).toLocaleString()}`}
+        change={stats.change.totalStockValue}
+        icon={Box}
+        color="primary"
+      />
+      <InventoryStatCard
+        title="Low Stock Items"
+        value={stats.current.lowStockItems}
+        change={stats.change.lowStockItems}
+        icon={AlertCircle}
+        color="warning"
+      />
+      <InventoryStatCard
+        title="Incoming Stock"
+        value={stats.current.incomingStock}
+        change={stats.change.incomingStock}
+        icon={Truck}
+        color="success"
+      />
+      <InventoryStatCard
+        title="Stock Turnover"
+        value={`${1.2}x`}
+        change={stats.change.stockTurnover}
+        icon={BarChart2}
+        color="info"
+      />
+    </div>
+  );
+});
 
   return (
     <DashboardLayout>
@@ -230,9 +276,9 @@ export default function InventoryPage() {
             <Suspense fallback={<LoadingCard height="400px" />}>
               <InventoryOverview timeframe={selectedTimeframe} />
             </Suspense>
-            <Suspense fallback={<LoadingCard height="400px" />}>
+            {/* <Suspense fallback={<LoadingCard height="400px" />}>
               <StockHistory />
-            </Suspense>
+            </Suspense> */}
           </div>
 
           {/* Right Column */}
@@ -240,9 +286,9 @@ export default function InventoryPage() {
             <Suspense fallback={<LoadingCard height="300px" />}>
               <LowStockAlerts />
             </Suspense>
-            <Suspense fallback={<LoadingCard height="300px" />}>
+            {/* <Suspense fallback={<LoadingCard height="300px" />}>
               <RestockSuggestions />
-            </Suspense>
+            </Suspense> */}
           </div>
         </div>
       </div>

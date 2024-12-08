@@ -1,5 +1,5 @@
-// components/dashboard/analytics/OrderVolume.tsx
 import { useState, useMemo } from "react";
+
 import {
   AreaChart,
   Area,
@@ -9,7 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   ShoppingCart,
   TrendingUp,
@@ -20,21 +20,19 @@ import {
 } from "lucide-react";
 import { formatNumber, calculateGrowth, chartTheme } from "@/lib/utils/charts";
 import { StatsBox } from "./StatsBox";
-import { SalesTrend } from "@/types/analytics";
+import { useOrderVolumeStats } from "@/lib/hooks/useOrderVolumeStats";
 
-interface OrderVolumeProps {
-  data?: SalesTrend[];
-  className?: string;
-}
 
-export function OrderVolume({ data = [], className }: OrderVolumeProps) {
+export function OrderVolume({ className }: { className?: string }) {
   const [timeFilter, setTimeFilter] = useState<"24h" | "7d" | "30d">("7d");
-  const [orderType, setOrderType] = useState<"all" | "completed" | "pending">(
-    "all"
-  );
+  const [orderType, setOrderType] = useState<"all" | "completed" | "pending">("all");
 
+  // Use the custom hook to fetch order data based on timeFilter and orderType
+  const { orderData, loading, error } = useOrderVolumeStats(timeFilter, orderType);
+
+  // Stats calculation
   const stats = useMemo(() => {
-    if (!data || data.length === 0) {
+    if (!orderData || orderData.orderVolume?.length === 0) {
       return {
         total: 0,
         average: 0,
@@ -43,36 +41,50 @@ export function OrderVolume({ data = [], className }: OrderVolumeProps) {
       };
     }
 
-    const totalOrders = data.reduce((sum, item) => sum + (item.orders || 0), 0);
-    const midPoint = Math.floor(data.length / 2);
+    const totalOrders = orderData.orderVolume.reduce(
+      (sum, item) => sum + (item.orders || 0),
+      0
+    );
+    const midPoint = Math.floor(orderData.orderVolume.length / 2);
 
-    const previousPeriod = data
+    const previousPeriod = orderData.orderVolume
       .slice(0, midPoint)
       .reduce((sum, item) => sum + (item.orders || 0), 0);
 
-    const currentPeriod = data
+    const currentPeriod = orderData.orderVolume
       .slice(midPoint)
       .reduce((sum, item) => sum + (item.orders || 0), 0);
 
-    const orderValues = data.map((item) => item.orders || 0);
+    const orderValues = orderData.orderVolume.map((item) => item.orders || 0);
 
     return {
       total: totalOrders,
-      average: totalOrders / data.length,
+      average: totalOrders / orderData.orderVolume.length,
       growth: calculateGrowth(previousPeriod, currentPeriod),
       peak: Math.max(...orderValues),
     };
-  }, [data]);
+  }, [orderData]);
 
-  // Early return for no data
-  if (!data || data.length === 0) {
+  // Early return for loading state or errors
+  if (loading) {
     return (
       <div
         className={`bg-white rounded-2xl border border-gray-100 p-6 ${className}`}
       >
         <div className="flex flex-col items-center justify-center h-[300px]">
-          <ShoppingCart className="w-12 h-12 text-gray-300 mb-3" />
-          <p className="text-gray-500">No order data available</p>
+          <p className="text-gray-500">Loading data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div
+        className={`bg-white rounded-2xl border border-gray-100 p-6 ${className}`}
+      >
+        <div className="flex flex-col items-center justify-center h-[300px]">
+          <p className="text-red-500">Error: {error.message}</p>
         </div>
       </div>
     );
@@ -82,13 +94,11 @@ export function OrderVolume({ data = [], className }: OrderVolumeProps) {
     <div
       className={`bg-white rounded-2xl border border-gray-100 p-6 ${className}`}
     >
+      {/* Header with Filters */}
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between gap-4">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              Order Volume
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900">Order Volume</h3>
             <div className="flex items-center gap-2 mt-1">
               <div
                 className={`flex items-center gap-1 text-sm ${
@@ -104,33 +114,25 @@ export function OrderVolume({ data = [], className }: OrderVolumeProps) {
               </div>
             </div>
           </div>
-
-          {/* Controls */}
+  
+          {/* Controls (Filters) */}
           <div className="flex flex-wrap items-center gap-3">
             {/* Time Filter */}
             <div className="flex p-1 bg-gray-50 rounded-xl">
-              {[
-                { value: "24h", label: "24h" },
-                { value: "7d", label: "7d" },
-                { value: "30d", label: "30d" },
-              ].map((option) => (
+              {["24h", "7d", "30d"].map((option) => (
                 <motion.button
-                  key={option.value}
+                  key={option}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setTimeFilter(option.value as any)}
+                  onClick={() => setTimeFilter(option)}
                   className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200
-                    ${
-                      timeFilter === option.value
-                        ? "bg-white text-gray-900 shadow-sm"
-                        : "text-gray-500 hover:text-gray-700"
-                    }`}
+                    ${timeFilter === option ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
                 >
-                  {option.label}
+                  {option}
                 </motion.button>
               ))}
             </div>
-
+  
             {/* Order Type Filter */}
             <div className="flex p-1 bg-gray-50 rounded-xl">
               {[
@@ -142,7 +144,7 @@ export function OrderVolume({ data = [], className }: OrderVolumeProps) {
                   key={option.value}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setOrderType(option.value as any)}
+                  onClick={() => setOrderType(option.value)}
                   className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200
                     ${
                       orderType === option.value
@@ -156,38 +158,65 @@ export function OrderVolume({ data = [], className }: OrderVolumeProps) {
             </div>
           </div>
         </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatsBox
-            title="Total Orders"
-            value={formatNumber(stats.total)}
-            icon={ShoppingCart}
-            trend={stats.growth}
-          />
-          <StatsBox
-            title="Average Orders"
-            value={formatNumber(stats.average, { decimals: 1 })}
-            icon={TrendingUp}
-          />
-          <StatsBox
-            title="Peak Orders"
-            value={formatNumber(stats.peak)}
-            icon={Filter}
-          />
-          <StatsBox
-            title="Processing Time"
-            value="2.5 hours"
-            icon={Clock}
-            subtitle="Average"
-          />
-        </div>
-
-        {/* Chart */}
-        <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart
-              data={data}
+  
+        {/* Conditional Rendering for Stats and Chart */}
+        {!orderData || !orderData.orderVolume || orderData.orderVolume.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-[300px]">
+            <ShoppingCart className="w-12 h-12 text-gray-300 mb-3" />
+            <p className="text-gray-500">No order data available</p>
+          </div>
+        ) : (
+          <>
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <StatsBox
+                title="Total Orders"
+                value={formatNumber(stats.total)}
+                icon={ShoppingCart}
+                trend={stats.growth}
+              />
+              <StatsBox
+                title="Average Orders"
+                value={formatNumber(stats.average, { decimals: 1 })}
+                icon={TrendingUp}
+              />
+              <StatsBox
+                title="Peak Orders"
+                value={formatNumber(stats.peak)}
+                icon={Filter}
+              />
+              {/* <StatsBox
+                title="Processing Time"
+                value="2.5 hours"
+                icon={Clock}
+                subtitle="Average"
+              /> */}
+            </div>
+  
+            {/* Chart */}
+            <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              {/* <AreaChart
+          width={500}
+          height={400}
+          data={orderData.orderVolume}
+          margin={{
+            top: 10,
+            right: 50,
+            left: 0,
+            bottom: 0,
+          }}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" />
+          <YAxis />
+          <Tooltip />
+          <Area type="monotone" dataKey="orders" stroke="#8884d8" fill="#8884d8" />
+        </AreaChart> */}
+        <AreaChart
+         width={500}
+         height={400}
+              data={orderData.orderVolume}
               margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
             >
               <defs>
@@ -256,11 +285,13 @@ export function OrderVolume({ data = [], className }: OrderVolumeProps) {
                 fill="url(#orderGradient)"
               />
             </AreaChart>
-          </ResponsiveContainer>
-        </div>
+
+              </ResponsiveContainer>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
+  
 }
-
-// StatsBox component remains the same

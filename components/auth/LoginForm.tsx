@@ -2,63 +2,35 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 import { useAuthStore } from "@/lib/store/authStore";
-import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [rememberMe, setRememberMe] = useState(false); // Optional state for "Remember me"
+
+  const login = useAuthStore((state) => state.login);
 
   const router = useRouter();
-
-  // Access Zustand store actions
-  const setToken = useAuthStore((state) => state.setToken);
-  const setUser = useAuthStore((state) => state.setUser);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null);
 
-    // Get form data
     const formData = new FormData(e.currentTarget as HTMLFormElement);
-    const payload = {
-      email: formData.get("email"),
-      password: formData.get("password"),
-    };
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Login failed.");
-      }
-
-      const data = await response.json();
-
-      // Save token and user data to Zustand store
-      setToken(data.token);
-      setUser(data.user);
-
-      // Save token to cookies for middleware
-      document.cookie = `authToken=${data.token}; path=/;`;
-
+      await login(email, password);
+      router.push('/')
       // Show success toast
       toast.success("Login successful!");
-
-      // Redirect to the dashboard
-      router.push("/");
     } catch (err: any) {
-      setError(err.message);
-      toast.error(err.message || "An error occurred during login.");
+      toast.error(err.response?.data?.message || "An error occurred during login.");
     } finally {
       setIsLoading(false);
     }
@@ -66,7 +38,6 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Form inputs */}
       <div className="space-y-4">
         <div>
           <label
@@ -103,13 +74,14 @@ export function LoginForm() {
         </div>
       </div>
 
-      {/* Remember me and Forgot password */}
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <input
             id="remember-me"
             name="remember-me"
             type="checkbox"
+            checked={rememberMe}
+            onChange={() => setRememberMe((prev) => !prev)}
             className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-400"
           />
           <label
@@ -128,7 +100,6 @@ export function LoginForm() {
         </Link>
       </div>
 
-      {/* Submit button */}
       <motion.button
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.99 }}
@@ -168,7 +139,6 @@ export function LoginForm() {
         )}
       </motion.button>
 
-      {/* Sign up link */}
       <div className="text-center">
         <span className="text-sm text-gray-600">Don't have an account? </span>
         <Link

@@ -1,19 +1,21 @@
-// components/orders/ActiveOrdersList.tsx
-"use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Grid, List, AlertCircle } from "lucide-react";
 import { ActiveOrdersListProps } from "@/types/orders";
 import { OrderTable } from "./OrderTable";
 import { OrderGrid } from "./OrderGrid";
 import { ViewToggle } from "./ViewToggle";
+import { AlertCircle } from "lucide-react";
 
 export function ActiveOrdersList({
   orders,
   loading,
   error,
   onRefresh,
-}: ActiveOrdersListProps) {
+  total,
+  page,
+  setPage,
+  limit,
+}: ActiveOrdersListProps & { total: number; page: number; setPage: (page: number) => void; limit: number }) {
   const [view, setView] = useState<"grid" | "table">("table");
 
   if (loading) {
@@ -24,6 +26,8 @@ export function ActiveOrdersList({
     return <OrdersError onRetry={onRefresh} />;
   }
 
+  const totalPages = Math.ceil(total / limit);
+
   return (
     <div className="bg-white rounded-2xl border border-gray-100">
       {/* Header */}
@@ -32,6 +36,7 @@ export function ActiveOrdersList({
           <p className="text-sm text-gray-500">
             Showing{" "}
             <span className="font-medium text-gray-900">{orders.length}</span>{" "}
+            of <span className="font-medium text-gray-900">{total}</span>{" "}
             orders
           </p>
           <ViewToggle view={view} onChange={setView} />
@@ -48,9 +53,36 @@ export function ActiveOrdersList({
           <OrderGrid orders={orders} />
         )}
       </AnimatePresence>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-between items-center p-4 border-t border-gray-100">
+        <button
+          onClick={() => setPage(page - 1)}
+          disabled={page === 1}
+          className={`px-4 py-2 rounded-lg ${
+            page === 1 ? "bg-gray-100 text-gray-400" : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+          }`}
+        >
+          Previous
+        </button>
+        <p className="text-sm text-gray-500">
+          Page <span className="font-medium text-gray-900">{page}</span> of{" "}
+          <span className="font-medium text-gray-900">{totalPages}</span>
+        </p>
+        <button
+          onClick={() => setPage(page + 1)}
+          disabled={page === totalPages}
+          className={`px-4 py-2 rounded-lg ${
+            page === totalPages ? "bg-gray-100 text-gray-400" : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+          }`}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }
+
 
 // Loading State
 function OrdersLoading({ view }: { view: "grid" | "table" }) {

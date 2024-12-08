@@ -1,5 +1,5 @@
 // types/orders.ts
-export type OrderStatus = "pending" | "processing" | "ready" | "shipped";
+export type OrderStatus = "PENDING" | "PROCESSING" | "ready" | "SHIPPED";
 export type PaymentStatus = "paid" | "unpaid" | "refunded";
 export type OrderPriority = "high" | "medium" | "low";
 

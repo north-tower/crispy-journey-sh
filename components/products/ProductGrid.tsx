@@ -101,7 +101,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
             <div className="rounded-lg border border-border overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-primary-200">
               <div className="aspect-square bg-muted relative overflow-hidden">
                 <img
-                  src={product.imageUrl}
+                  src={`http://localhost:8900/uploads/${product.images?.[0]?.filename}`}
                   alt={product.name}
                   className="object-cover w-full h-full transform transition-transform duration-300 group-hover:scale-110"
                 />
@@ -116,7 +116,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
                 </p>
                 <div className="mt-4 flex items-center justify-between">
                   <span className="font-medium text-primary-600">
-                    ${product.price}
+                    KES{product.sellingPrice}
                   </span>
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium

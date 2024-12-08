@@ -39,6 +39,7 @@ export function SalesTrend({ data }: SalesTrendProps) {
             <LineChart
               data={data}
               margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
+              height={350} width={450}
             >
               <defs>
                 <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">

@@ -5,8 +5,8 @@ interface MetricProps {
   title: string;
   value: string;
   change: string;
-  icon: LucideIcon;
-  trend: "up" | "down";
+  icon: LucideIcon | null;
+  trend: "up" | "down" | "neutral";
 }
 
 interface PerformanceMetricsProps {
@@ -17,7 +17,9 @@ export function PerformanceMetrics({ metrics }: PerformanceMetricsProps) {
   const getTrendColor = (trend: string) => {
     return trend === "up"
       ? "bg-green-50 text-green-600"
-      : "bg-red-50 text-red-600";
+      : trend === "down"
+      ? "bg-red-50 text-red-600"
+      : "bg-gray-50 text-gray-600";
   };
 
   return (
@@ -27,10 +29,9 @@ export function PerformanceMetrics({ metrics }: PerformanceMetricsProps) {
           key={metric.title}
           className="p-6 bg-white rounded-xl border border-gray-100 hover:border-gray-200 transition-colors"
         >
-          {/* Header with Icon and Trend */}
           <div className="flex items-center justify-between mb-4">
             <div className="p-2 bg-gray-50 rounded-lg">
-              <metric.icon className="w-5 h-5 text-gray-400" />
+              {metric.icon && <metric.icon className="w-5 h-5 text-gray-400" />}
             </div>
             <span
               className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getTrendColor(
@@ -40,8 +41,6 @@ export function PerformanceMetrics({ metrics }: PerformanceMetricsProps) {
               {metric.change}
             </span>
           </div>
-
-          {/* Metric Details */}
           <div>
             <p className="text-sm text-gray-500">{metric.title}</p>
             <p className="text-xl font-semibold text-gray-900 mt-1">

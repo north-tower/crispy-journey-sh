@@ -23,7 +23,7 @@ export function CompletedFilters({ orders }: CompletedFiltersProps) {
           <StatCard
             icon={DollarSign}
             label="Total Revenue"
-            value={`$${totalRevenue.toFixed(2)}`}
+            value={`$${totalRevenue}`}
           />
           <StatCard
             icon={Star}

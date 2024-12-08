@@ -45,18 +45,19 @@ export function OrderTable({ orders }: OrderTableProps) {
               whileHover={{ backgroundColor: "rgba(249, 250, 251, 0.5)" }}
               className="cursor-pointer"
             >
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className="text-sm font-medium text-gray-900">
-                  {order.orderNumber}
-                </span>
-              </td>
+             <td className="px-6 py-4 whitespace-nowrap">
+              <span className="text-sm font-medium text-gray-900">
+                {order.id.slice(0, 5)}
+              </span>
+            </td>
+
               <td className="px-6 py-4 whitespace-nowrap">
                 <div>
                   <div className="text-sm text-gray-900">
-                    {order.customerName}
+                    {order.user.firstName} {order.user.lastName}
                   </div>
                   <div className="text-sm text-gray-500">
-                    {order.customerEmail}
+                    {order.user.email}
                   </div>
                 </div>
               </td>
@@ -65,7 +66,7 @@ export function OrderTable({ orders }: OrderTableProps) {
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <span className="text-sm font-medium text-gray-900">
-                  ${order.total.toFixed(2)}
+                  KES{order.total}
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">

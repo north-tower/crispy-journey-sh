@@ -1,29 +1,43 @@
-// components/products/ProductHeader.tsx
-"use client";
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { SearchBar } from "./SearchBar";
 import { ViewToggle } from "./ViewToggle";
 import { NewProductModal } from "./NewProductModal";
+import { toast } from "react-toastify"; 
+
 
 interface ProductHeaderProps {
   viewMode: "table" | "grid";
   onViewModeChange: (mode: "table" | "grid") => void;
-  onSearch: (query: string) => void;  // Add prop for search query
+  onSearch: (query: string) => void;
+  onProductCreated: () => void; // Callback to trigger data reload in parent
 }
 
 export function ProductHeader({
   viewMode,
   onViewModeChange,
   onSearch,
+  onProductCreated,
 }: ProductHeaderProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleSubmit = (data: any) => {
-    // TODO: Handle the new product data here
-    console.log("New product:", data);
-    //TODO: API call or state management logic
+  const handleSubmit = async () => {
+    try {
+     
+      // Show success notification
+      toast.success("Product created successfully!");
+      
+      // Close modal on success
+      setIsModalOpen(false);
+      
+      // Trigger a refresh in the parent component to fetch updated data
+      onProductCreated();
+      
+    } catch (error) {
+      // Handle errors
+      console.error("Error creating product:", error);
+      toast.error("Failed to create product. Please try again.");
+    }
   };
 
   return (
@@ -45,7 +59,7 @@ export function ProductHeader({
           >
             New Product
           </motion.button>
-          <SearchBar onSearch={onSearch} />  {/* Pass onSearch to SearchBar */}
+          <SearchBar onSearch={onSearch} />
           <ViewToggle currentView={viewMode} onViewChange={onViewModeChange} />
         </div>
       </div>

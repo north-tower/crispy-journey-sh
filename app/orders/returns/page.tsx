@@ -1,44 +1,15 @@
-// app/returns/page.tsx
-
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { ReturnsHeader } from "@/components/returns/ReturnsHeader";
 import { ReturnsTable } from "@/components/returns/ReturnsTable";
-import { ReturnOrder } from "@/types/returns";
+import { useOrders } from "@/lib/hooks/useOrders";
 import { debounce } from "lodash";
 
-// Mock data (move to a separate file in production)
-const mockReturns: ReturnOrder[] = [
-  {
-    id: "1",
-    orderNumber: "ORD-9241-RET",
-    customer: {
-      name: "Customer 1",
-      email: "customer1@example.com",
-    },
-    returnReason: "Wrong size",
-    status: "pending",
-    amount: 545.0,
-    date: "2024-08-16",
-    items: [
-      {
-        id: "item-1",
-        productName: "Product 1",
-        quantity: 1,
-        reason: "Size too small",
-        condition: "new",
-        refundAmount: 545.0,
-      },
-    ],
-  },
-  // Add more mock data
-];
-
 export default function Returns() {
+  const { orders: returns, loading, error, refreshOrders } = useOrders("returned");
   const [searchQuery, setSearchQuery] = useState("");
-  const [returns] = useState<ReturnOrder[]>(mockReturns);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const [tempFilter, setTempFilter] = useState({
@@ -100,13 +71,12 @@ export default function Returns() {
     });
   }, [returns, searchQuery, activeFilter]);
 
-  const handleSearchQueryChange = debounce((query: string) => {
-    setSearchQuery(query);
-  }, 200);
-
-  const handleRefresh = () => {
-    // Implement refresh logic
-  };
+  const handleSearchQueryChange = useCallback(
+    debounce((query: string) => {
+      setSearchQuery(query);
+    }, 200),
+    []
+  );
 
   return (
     <DashboardLayout>
@@ -114,12 +84,16 @@ export default function Returns() {
         <ReturnsHeader
           totalReturns={returns.length}
           onSearch={handleSearchQueryChange}
-          onRefresh={handleRefresh}
+          onRefresh={refreshOrders}
           searchQuery={searchQuery}
           toggleFilterModal={toggleFilterModal}
         />
 
-        {filteredReturns.length > 0 ? (
+        {loading ? (
+          <p className="text-center text-gray-500">Loading...</p>
+        ) : error ? (
+          <p className="text-center text-red-500">{error}</p>
+        ) : filteredReturns.length > 0 ? (
           <ReturnsTable returns={filteredReturns} />
         ) : (
           <p className="text-center text-gray-500">No returns found</p>

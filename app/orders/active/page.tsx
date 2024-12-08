@@ -10,7 +10,16 @@ import { ActiveOrdersList } from "@/components/orders/ActiveOrdersList";
 import { useOrders } from "@/lib/hooks/useOrders";
 
 export default function ActiveOrdersPage() {
-  const { orders, loading, error, refreshOrders } = useOrders("active");
+  const {
+    orders,
+    loading,
+    error,
+    total,
+    page,
+    setPage,
+    limit,
+    refreshOrders,
+  } = useOrders("active"); // or use any other type like "completed", "returned"
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all"); // Filter set by OrderFilters
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -58,9 +67,7 @@ export default function ActiveOrdersPage() {
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order: Order) => {
-      const matchesSearch =
-        order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.customerName.toLowerCase().includes(searchQuery.toLowerCase());
+     
       const matchesStatus = statusFilter === "all" || order.status === statusFilter;
       const matchesDateRange =
         (!appliedFilters.startDate || new Date(order.createdAt) >= new Date(appliedFilters.startDate)) &&
@@ -69,7 +76,7 @@ export default function ActiveOrdersPage() {
         (!appliedFilters.minAmount || order.total >= parseFloat(appliedFilters.minAmount)) &&
         (!appliedFilters.maxAmount || order.total <= parseFloat(appliedFilters.maxAmount));
 
-      return matchesSearch && matchesStatus && matchesDateRange && matchesAmountRange;
+      return  matchesStatus && matchesDateRange && matchesAmountRange;
     });
   }, [orders, searchQuery, statusFilter, appliedFilters]);
 
@@ -92,10 +99,10 @@ export default function ActiveOrdersPage() {
               onStatusChange={setStatusFilter} // Directly set statusFilter
               orderCounts={{
                 all: orders.length,
-                pending: orders.filter((o) => o.status === "pending").length,
-                processing: orders.filter((o) => o.status === "processing").length,
-                ready: orders.filter((o) => o.status === "ready").length,
-                shipped: orders.filter((o) => o.status === "shipped").length,
+                pending: orders.filter((o) => o.status === "PENDING").length,
+                processing: orders.filter((o) => o.status === "PROCESSING").length,
+                ready: orders.filter((o) => o.status === "READY").length,
+                shipped: orders.filter((o) => o.status === "SHIPPED").length,
               }}
               onResetStatus={resetStatusFilter} // Reset status
             />
@@ -107,12 +114,16 @@ export default function ActiveOrdersPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <ActiveOrdersList
-                orders={filteredOrders}
-                loading={loading}
-                error={error}
-                onRefresh={refreshOrders}
-              />
+               <ActiveOrdersList
+      orders={filteredOrders}
+      loading={loading}
+      error={error}
+      onRefresh={refreshOrders}
+      total={total}
+      page={page}
+      setPage={setPage}
+      limit={limit}
+    />
             </motion.div>
           </div>
         </div>

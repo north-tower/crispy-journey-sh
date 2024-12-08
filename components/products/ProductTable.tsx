@@ -48,11 +48,13 @@ const ProductTable = React.memo(function ProductTable({
                 onClick={() => handleRowClick(product.id)}
                 className="border-t border-border hover:bg-muted/50 cursor-pointer transition-colors"
               >
+               
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center">
-                      <img
-                        src={product.imageUrl}
+                      <img 
+                   
+                        src={`http://localhost:8900/uploads/${product.images?.[0]?.filename}`}
                         alt={product.name}
                         className="w-8 h-8 object-cover rounded"
                       />
@@ -68,10 +70,10 @@ const ProductTable = React.memo(function ProductTable({
                   </div>
                 </td>
                 <td className="px-4 py-3 text-xs md:text-base">
-                  {product.category}
+                  {product.categoryName}
                 </td>
                 <td className="px-4 py-3 text-right text-xs md:text-base">
-                  ${product.price}
+                  KES{product.sellingPrice}
                 </td>
                 <td className="px-4 py-3 text-right text-xs md:text-base">
                   {product.stock}

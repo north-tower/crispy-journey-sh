@@ -39,13 +39,13 @@ export function OrderFilters({
       count: orderCounts.all,
     },
     {
-      id: "pending",
+      id: "PENDING",
       label: "Pending",
       icon: Clock,
       count: orderCounts.pending,
     },
     {
-      id: "processing",
+      id: "PROCESSING",
       label: "Processing",
       icon: CheckCircle2,
       count: orderCounts.processing,
@@ -57,7 +57,7 @@ export function OrderFilters({
       count: orderCounts.ready,
     },
     {
-      id: "shipped",
+      id: "SHIPPED",
       label: "Shipped",
       icon: Truck,
       count: orderCounts.shipped,

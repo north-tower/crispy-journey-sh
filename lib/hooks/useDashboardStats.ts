@@ -1,52 +1,56 @@
-// lib/hooks/useDashboardStats.ts
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { DashboardStats } from "@/types/dashboard";
-import { mockStats } from "@/lib/data/mockStats";
 
 export function useDashboardStats() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    // Simulate API delay
-    const loadMockData = async () => {
-      try {
-        setLoading(true);
-        // Simulate network delay
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setStats(mockStats);
-      } catch (err) {
-        setError(err as Error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchStats = useCallback(async (timeRange: string = "monthly") => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    loadMockData();
+      // Fetch data from the backend API
+      const response = await fetch(`http://localhost:8900/api/dashboard/stats?timeRange=${timeRange}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch dashboard stats: ${response.statusText}`);
+      }
+
+      const data: DashboardStats = await response.json();
+      setStats(data);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  // Add some utility functions that might be useful
-  const refreshStats = async () => {
-    setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setStats(mockStats);
-    setLoading(false);
-  };
+  // Fetch initial stats
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
-  const filterByTimeRange = (
-    timeRange: "daily" | "weekly" | "monthly" | "yearly"
-  ) => {
-    // In a real implementation, this would filter the data based on time range
-    // For now, we'll just simulate a refresh
-    refreshStats();
-  };
+  const refreshStats = useCallback(async () => {
+    await fetchStats();
+  }, [fetchStats]);
 
-  return {
-    stats,
-    loading,
-    error,
-    refreshStats,
-    filterByTimeRange,
-  };
+  const filterByTimeRange = useCallback(
+    async (timeRange: "daily" | "weekly" | "monthly" | "yearly" | "quarterly") => {
+      await fetchStats(timeRange);
+    },
+    [fetchStats]
+  );
+
+  // Memoize returned values
+  return useMemo(
+    () => ({
+      stats,
+      loading,
+      error,
+      refreshStats,
+      filterByTimeRange,
+    }),
+    [stats, loading, error, refreshStats, filterByTimeRange]
+  );
 }

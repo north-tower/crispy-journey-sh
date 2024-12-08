@@ -1,15 +1,21 @@
-// components/products/NewProductModal/NewProductForm.tsx
-import { MOCK_CATEGORIES } from "@/types/categories";
-import { Product } from "@/types/products";
+import apiClient from "@/lib/axios";
 import { useState } from "react";
 
-interface FormData extends Omit<Product, "id" | "createdAt"> {
-  status: "in_stock" | "low_stock" | "out_of_stock";
+interface FormData {
+  name: string;
+  description: string;
+ 
+  stock: number;
+  categoryId: string;
+  markedPrice: number,
+  sellingPrice: number,
+  sellerId: string; // Hardcoded or dynamically retrieved.
+  imageIds?: string[]; // Array to handle uploaded image IDs.
 }
 
 interface NewProductFormProps {
-  onSubmit: (data: FormData) => void;
-  onCancel: () => void;
+  onSubmit: () => Promise<void>; // Async handler for the form submission.
+  onCancel: () => void; // Handler to cancel form submission.
 }
 
 type Section = "basic" | "pricing" | "media";
@@ -19,17 +25,15 @@ export function NewProductForm({ onSubmit, onCancel }: NewProductFormProps) {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     description: "",
-    price: 0,
+    markedPrice: 0,
+    sellingPrice: 0,
     stock: 0,
-    category: "",
-    status: "in_stock",
-    imageUrl: "",
+    categoryId: "9752452d-a7ae-11ef-93d1-d4d252d1dd96",
+    sellerId: "6c0b18a2-a7b0-11ef-93d1-d4d252d1dd96",
+    imageIds: [],
   });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]); // Store files before upload.
+  const [uploading, setUploading] = useState(false); // Track upload progress.
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -43,20 +47,64 @@ export function NewProductForm({ onSubmit, onCancel }: NewProductFormProps) {
     }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // In real app, handle file upload here
-      const imageUrl = URL.createObjectURL(file);
-      setFormData((prev) => ({ ...prev, imageUrl }));
+  const handleFileSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      setUploadedFiles(Array.from(files));
     }
   };
 
-  const sections = [
-    { id: "basic", label: "Basic Information", icon: "📝" },
-    { id: "pricing", label: "Pricing & Inventory", icon: "💰" },
-    { id: "media", label: "Media", icon: "🖼️" },
-  ] as const;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUploading(true);
+  
+    try {
+      // Step 1: Create the product without images
+      const productResponse = await apiClient.post("http://localhost:8900/api/products", {
+        ...formData,
+        imageIds: [], // Initially, no images
+      });
+  
+      const productId = productResponse.data.id;
+  
+      // Step 2: Upload images with productId
+      const uploadedIds: string[] = [];
+      for (const file of uploadedFiles) {
+        const fileData = new FormData();
+        fileData.append("file", file);
+        fileData.append("purpose", "PRODUCT");
+        fileData.append("productId", productId); // Now include the productId
+  
+        const uploadResponse = await apiClient.post(
+          "http://localhost:8900/api/media/upload",
+          fileData,
+          { headers: { "Content-Type": "multipart/form-data" } }
+        );
+  
+        const uploadedFile = uploadResponse.data;
+        if (!uploadedFile.id) {
+          throw new Error("File upload failed. Missing file ID.");
+        }
+        uploadedIds.push(uploadedFile.id);
+      }
+  
+      // Step 3: Update the product with the uploaded image IDs
+      await apiClient.patch(`http://localhost:8900/api/products/${productId}`, {
+        imageIds: uploadedIds,
+      });
+  
+      await onSubmit();
+    } catch (error: any) {
+      console.error("Error submitting product form:", error.response ? error.response.data : error.message);
+      alert("Failed to save product. Please check the details and try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
+  
+  
+  
 
   const renderContent = () => {
     switch (currentSection) {
@@ -78,14 +126,17 @@ export function NewProductForm({ onSubmit, onCancel }: NewProductFormProps) {
             <div className="space-y-1">
               <label className="text-sm font-medium">Category</label>
               <select
-                name="category"
-                value={formData.category}
+                name="categoryId"
+                value={formData.categoryId}
                 onChange={handleChange}
                 className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400"
                 required
               >
                 <option value="">Select a category</option>
-                {MOCK_CATEGORIES.map((category) => (
+                {[
+                  { id: "9752452d-a7ae-11ef-93d1-d4d252d1dd96", name: "Electronics" },
+                  { id: "975256c3-a7ae-11ef-93d1-d4d252d1dd96", name: "Books" },
+                ].map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
                   </option>
@@ -110,76 +161,76 @@ export function NewProductForm({ onSubmit, onCancel }: NewProductFormProps) {
       case "pricing":
         return (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Price</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                    $
-                  </span>
-                  <input
-                    type="number"
-                    name="price"
-                    value={formData.price}
-                    onChange={handleChange}
-                    min="0"
-                    step="0.01"
-                    className="w-full rounded-lg border pl-8 pr-3 py-2 text-sm focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400"
-                    required
-                  />
-                </div>
-              </div>
+  <div className="grid grid-cols-2 gap-4">
+    <div className="space-y-1">
+      <label className="text-sm font-medium">Marked Price</label>
+      <input
+        type="number"
+        name="markedPrice" // Corrected name
+        value={formData.markedPrice}
+        onChange={handleChange}
+        min="0"
+        step="0.01"
+        className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400"
+        required
+      />
+    </div>
 
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Stock</label>
-                <input
-                  type="number"
-                  name="stock"
-                  value={formData.stock}
-                  onChange={handleChange}
-                  min="0"
-                  className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400"
-                  required
-                />
-              </div>
-            </div>
+    <div className="space-y-1">
+      <label className="text-sm font-medium">Selling Price</label>
+      <input
+        type="number"
+        name="sellingPrice" // Corrected name
+        value={formData.sellingPrice}
+        onChange={handleChange}
+        min="0"
+        step="0.01"
+        className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400"
+        required
+      />
+    </div>
 
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Status</label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400"
-              >
-                <option value="in_stock">In Stock</option>
-                <option value="low_stock">Low Stock</option>
-                <option value="out_of_stock">Out of Stock</option>
-              </select>
-            </div>
-          </div>
+   
+
+    <div className="space-y-1">
+      <label className="text-sm font-medium">Stock</label>
+      <input
+        type="number"
+        name="stock" // Correct name
+        value={formData.stock}
+        onChange={handleChange}
+        min="0"
+        className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400"
+        required
+      />
+    </div>
+  </div>
+</div>
+
         );
 
       case "media":
         return (
           <div className="space-y-4">
             <div className="space-y-1">
-              <label className="text-sm font-medium">Product Image</label>
+              <label className="text-sm font-medium">Product Images</label>
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleFileChange}
+                multiple
+                onChange={handleFileSelection}
                 className="w-full rounded-lg border bg-white px-3 py-2 text-sm file:mr-4 file:rounded-full file:border-0 file:bg-primary-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-primary-700 hover:file:bg-primary-100"
               />
             </div>
 
-            {formData.imageUrl && (
-              <div className="relative h-40 w-40 overflow-hidden rounded-lg border">
-                <img
-                  src={formData.imageUrl}
-                  alt="Product preview"
-                  className="h-full w-full object-cover"
-                />
+            {uploadedFiles.length > 0 && (
+              <div className="space-y-2">
+                <p>Selected Images:</p>
+                <ul>
+                  {uploadedFiles.map((file, index) => (
+                    <li key={index}>{file.name}</li>
+                  ))}
+                </ul>
               </div>
             )}
           </div>
@@ -189,9 +240,12 @@ export function NewProductForm({ onSubmit, onCancel }: NewProductFormProps) {
 
   return (
     <div className="flex gap-6">
-      {/* Sidebar */}
       <div className="w-48 space-y-1">
-        {sections.map(({ id, label, icon }) => (
+        {[
+          { id: "basic", label: "Basic Information" },
+          { id: "pricing", label: "Pricing & Inventory" },
+          { id: "media", label: "Media" },
+        ].map(({ id, label }) => (
           <button
             key={id}
             onClick={() => setCurrentSection(id)}
@@ -201,15 +255,11 @@ export function NewProductForm({ onSubmit, onCancel }: NewProductFormProps) {
                 : "text-gray-600 hover:bg-gray-50"
             }`}
           >
-            <span className="flex items-center gap-2">
-              <span>{icon}</span>
-              {label}
-            </span>
+            {label}
           </button>
         ))}
       </div>
 
-      {/* Content */}
       <div className="flex-1">
         <form onSubmit={handleSubmit} className="space-y-6">
           {renderContent()}
@@ -225,12 +275,13 @@ export function NewProductForm({ onSubmit, onCancel }: NewProductFormProps) {
             <button
               type="submit"
               className="rounded-lg bg-primary-400 px-4 py-2 text-sm font-medium text-white hover:bg-primary-500"
+              disabled={uploading}
             >
-              Create Product
+              {uploading ? "Uploading..." : "Create Product"}
             </button>
           </div>
         </form>
       </div>
     </div>
   );
-}
+} 

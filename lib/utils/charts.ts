@@ -194,7 +194,7 @@ export const calculateChartStatistics = (data: number[]) => {
  */
 export const chartTheme = {
   colors: {
-    primary: "#10B981",
+    primary: "#9333EA",
     secondary: "#6366F1",
     warning: "#F59E0B",
     danger: "#EF4444",

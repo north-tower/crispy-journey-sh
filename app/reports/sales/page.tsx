@@ -1,7 +1,6 @@
-// app/reports/sales/page.tsx
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { SalesTrend } from "@/components/reports/sales/SalesTrend";
 import {
@@ -28,58 +27,76 @@ interface SalesData {
   trend: "up" | "down";
 }
 
-const salesMetrics: SalesData[] = [
-  {
-    title: "Total Revenue",
-    value: "$24,563.00",
-    change: "+12.5%",
-    icon: DollarSign,
-    trend: "up",
-  },
-  {
-    title: "Total Orders",
-    value: "1,463",
-    change: "+8.2%",
-    icon: Package,
-    trend: "up",
-  },
-  {
-    title: "Active Customers",
-    value: "892",
-    change: "+5.1%",
-    icon: Users,
-    trend: "up",
-  },
-  {
-    title: "Avg. Order Value",
-    value: "$168.45",
-    change: "+3.2%",
-    icon: TrendingUp,
-    trend: "up",
-  },
-];
-
-const monthlySales = [
-  { month: "Jan", amount: 12400 },
-  { month: "Feb", amount: 15200 },
-  { month: "Mar", amount: 18100 },
-  { month: "Apr", amount: 16400 },
-  { month: "May", amount: 19800 },
-  { month: "Jun", amount: 22400 },
-];
+interface MonthlySalesData {
+  month: string;
+  amount: number;
+}
 
 export default function SalesReport() {
-  const [timeRange, setTimeRange] = useState<string>("30");
+  const [timeRange, setTimeRange] = useState<string>("monthly"); // Default time range
+  const [metrics, setMetrics] = useState<SalesData[]>([]);
+  const [salesData, setSalesData] = useState<MonthlySalesData[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  // Memoized sales metrics and monthly data
-  const metrics = useMemo(() => salesMetrics, []);
-  const salesData = useMemo(() => monthlySales, []);
+  // Fetch data from the backend
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `http://localhost:8900/api/orders/overview/sales-metrics?timeRange=${timeRange}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch sales metrics");
+      }
+
+      const data = await response.json();
+
+      // Map the data into the format required for metrics and sales trend
+      setMetrics(
+        data.salesMetrics.map((metric: any) => ({
+          title: metric.title,
+          value: metric.value,
+          change: metric.change,
+          icon: getIcon(metric.icon), // Map icon strings to actual components
+          trend: metric.trend,
+        }))
+      );
+
+      setSalesData(data.monthlySales);
+    } catch (error) {
+      console.error("Error fetching sales data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [timeRange]);
+
+  // Fetch data on mount and whenever timeRange changes
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   // Debounced time range change handler
   const handleTimeRangeChange = useCallback(
     debounce((newRange: string) => setTimeRange(newRange), 200),
     []
   );
+
+  // Icon mapper
+  const getIcon = (icon: string) => {
+    switch (icon) {
+      case "DollarSign":
+        return DollarSign;
+      case "Package":
+        return Package;
+      case "Users":
+        return Users;
+      case "TrendingUp":
+        return TrendingUp;
+      default:
+        return null;
+    }
+  };
 
   // Optimized export handler
   const handleExport = async () => {
@@ -117,10 +134,10 @@ export default function SalesReport() {
               className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm
                 focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-primary-300"
             >
-              <option value="7">Last 7 days</option>
-              <option value="30">Last 30 days</option>
-              <option value="90">Last 90 days</option>
-              <option value="365">Last 12 months</option>
+              <option value="daily">Last 24 hours</option>
+              <option value="weekly">Last 7 days</option>
+              <option value="monthly">Last 30 days</option>
+              <option value="yearly">Last 12 months</option>
             </select>
 
             {/* Action Buttons */}
@@ -146,12 +163,16 @@ export default function SalesReport() {
         </div>
 
         {/* Metrics */}
-        <SalesMetrics metrics={metrics} />
+        {loading ? (
+          <p>Loading metrics...</p>
+        ) : (
+          <SalesMetrics metrics={metrics} />
+        )}
 
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <SalesTrend data={salesData} />
-          <TopProducts />
+          <TopProducts timeRange={timeRange} />
         </div>
       </div>
     </DashboardLayout>

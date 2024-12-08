@@ -1,10 +1,20 @@
-export function StoreAddress() {
+import React from "react";
+
+export function StoreAddress({ storeData }) {
   const fields = [
     { label: "Street Address", name: "street" },
     { label: "City", name: "city" },
     { label: "State/Province", name: "state" },
     { label: "Postal Code", name: "postal" },
   ];
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    onAddressChange((prevAddress) => ({
+      ...prevAddress,
+      [name]: value,
+    }));
+  };
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 p-6">
@@ -21,6 +31,8 @@ export function StoreAddress() {
             <input
               type="text"
               name={field.name}
+              value={storeData.address[field.name] || ""}
+              onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none 
                 focus:ring-2 focus:ring-primary-100 focus:border-primary-300"
             />

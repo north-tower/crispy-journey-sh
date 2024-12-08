@@ -1,4 +1,3 @@
-// components/products/NewProductModal/index.tsx
 import { Product } from "@/types/products";
 import { Modal } from "./Modal";
 import { NewProductForm } from "./NewProductForm";
@@ -16,27 +15,12 @@ export function NewProductModal({
 }: NewProductModalProps) {
   const handleSubmit = async (data: Omit<Product, "id" | "createdAt">) => {
     try {
-      // Handle file upload if there's a file
-      if (data.imageUrl instanceof File) {
-        const reader = new FileReader();
-        const imageUrl = await new Promise<string>((resolve) => {
-          reader.onload = () => resolve(reader.result as string);
-          reader.readAsDataURL(data.imageUrl as unknown as File);
-        });
-
-        // Update the data with the image URL
-        data = {
-          ...data,
-          imageUrl,
-        };
-      }
-
       // Submit the final data
-      onSubmit(data);
-      onClose();
+      await onSubmit(data); // Pass form data directly
+      onClose(); // Close the modal on success
     } catch (error) {
-      console.error("Error processing product data:", error);
-      // Here you might want to show an error message to the user
+      console.error("Error creating product:", error);
+      // Optionally: Handle error display (e.g., show error notification)
     }
   };
 
