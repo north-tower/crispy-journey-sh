@@ -8,7 +8,7 @@ interface CompletedFiltersProps {
 
 export function CompletedFilters({ orders }: CompletedFiltersProps) {
   // Calculate statistics
-  const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+  const totalRevenue = orders.reduce((sum, order) => sum + Number(order.total), 0);
   const avgOrderValue = totalRevenue / orders.length || 0;
 
   return (

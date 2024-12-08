@@ -35,6 +35,9 @@ export default function CompletedOrdersPage() {
     return filteredByDate;
   }, [orders, searchQuery, dateFilter]);
 
+
+  console.log(filteredOrders)
+
   // Debounce date filter change
   const handleDateFilterChange = useCallback(
     debounce((newDateFilter: "week" | "month" | "year") => {

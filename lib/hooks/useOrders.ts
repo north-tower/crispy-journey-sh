@@ -4,7 +4,7 @@ import axios from "axios";
 
 type OrderType = "active" | "completed" | "returned";
 
-export function useOrders(type: OrderType = "active") {
+export function useOrders(type: OrderType = "completed") {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -16,9 +16,9 @@ export function useOrders(type: OrderType = "active") {
     setLoading(true);
     try {
       const response = await axios.get(`http://localhost:8900/api/orders`,
-      //    {
-      //   params: { type, page, limit },
-      // }
+         {
+        params: { type },
+      }
     );
 
       setOrders(response.data.data); // API should return paginated data as { data, total }
