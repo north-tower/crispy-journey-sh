@@ -1,16 +1,16 @@
 import apiClient from "@/lib/axios";
-import { useState } from "react";
+import { useCategoriesStore } from "@/lib/store/categories";
+import { useEffect, useState } from "react";
 
 interface FormData {
   name: string;
   description: string;
- 
   stock: number;
   categoryId: string;
-  markedPrice: number,
-  sellingPrice: number,
-  sellerId: string; // Hardcoded or dynamically retrieved.
-  imageIds?: string[]; // Array to handle uploaded image IDs.
+  markedPrice: number;
+  sellingPrice: number;
+  sellerId?: string;
+  imageIds?: string[];
 }
 
 interface NewProductFormProps {
@@ -21,6 +21,11 @@ interface NewProductFormProps {
 type Section = "basic" | "pricing" | "media";
 
 export function NewProductForm({ onSubmit, onCancel }: NewProductFormProps) {
+  const { categories, isLoading, error, fetchCategories } =
+    useCategoriesStore();
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
   const [currentSection, setCurrentSection] = useState<Section>("basic");
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -28,8 +33,7 @@ export function NewProductForm({ onSubmit, onCancel }: NewProductFormProps) {
     markedPrice: 0,
     sellingPrice: 0,
     stock: 0,
-    categoryId: "9752452d-a7ae-11ef-93d1-d4d252d1dd96",
-    sellerId: "6c0b18a2-a7b0-11ef-93d1-d4d252d1dd96",
+    categoryId: "",
     imageIds: [],
   });
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]); // Store files before upload.
@@ -54,20 +58,22 @@ export function NewProductForm({ onSubmit, onCancel }: NewProductFormProps) {
     }
   };
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setUploading(true);
-  
+
     try {
       // Step 1: Create the product without images
-      const productResponse = await apiClient.post("http://localhost:8900/api/products", {
-        ...formData,
-        imageIds: [], // Initially, no images
-      });
-  
+      const productResponse = await apiClient.post(
+        "http://localhost:8900/api/products",
+        {
+          ...formData,
+          imageIds: [], // Initially, no images
+        }
+      );
+
       const productId = productResponse.data.id;
-  
+
       // Step 2: Upload images with productId
       const uploadedIds: string[] = [];
       for (const file of uploadedFiles) {
@@ -75,36 +81,36 @@ export function NewProductForm({ onSubmit, onCancel }: NewProductFormProps) {
         fileData.append("file", file);
         fileData.append("purpose", "PRODUCT");
         fileData.append("productId", productId); // Now include the productId
-  
+
         const uploadResponse = await apiClient.post(
           "http://localhost:8900/api/media/upload",
           fileData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
-  
+
         const uploadedFile = uploadResponse.data;
         if (!uploadedFile.id) {
           throw new Error("File upload failed. Missing file ID.");
         }
         uploadedIds.push(uploadedFile.id);
       }
-  
+
       // Step 3: Update the product with the uploaded image IDs
       await apiClient.patch(`http://localhost:8900/api/products/${productId}`, {
         imageIds: uploadedIds,
       });
-  
+
       await onSubmit();
     } catch (error: any) {
-      console.error("Error submitting product form:", error.response ? error.response.data : error.message);
-      alert("Failed to save product. Please check the details and try again.");
+      console.error(
+        "Error submitting product form:",
+        error.response ? error.response.data : error.message
+      );
+      // alert("Failed to save product. Please check the details and try again.");
     } finally {
       setUploading(false);
     }
   };
-  
-  
-  
 
   const renderContent = () => {
     switch (currentSection) {
@@ -125,23 +131,36 @@ export function NewProductForm({ onSubmit, onCancel }: NewProductFormProps) {
 
             <div className="space-y-1">
               <label className="text-sm font-medium">Category</label>
-              <select
-                name="categoryId"
-                value={formData.categoryId}
-                onChange={handleChange}
-                className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400"
-                required
-              >
-                <option value="">Select a category</option>
-                {[
-                  { id: "9752452d-a7ae-11ef-93d1-d4d252d1dd96", name: "Electronics" },
-                  { id: "975256c3-a7ae-11ef-93d1-d4d252d1dd96", name: "Books" },
-                ].map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
+              {isLoading ? (
+                <div className="w-full rounded-lg border px-3 py-2 text-sm text-gray-500">
+                  Loading categories...
+                </div>
+              ) : error ? (
+                <div className="w-full rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+                  {error}
+                  <button
+                    onClick={fetchCategories}
+                    className="ml-2 text-red-700 underline"
+                  >
+                    Retry
+                  </button>
+                </div>
+              ) : (
+                <select
+                  name="categoryId"
+                  value={formData.categoryId}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400"
+                  required
+                >
+                  <option value="">Select a category</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             <div className="space-y-1">
@@ -161,52 +180,49 @@ export function NewProductForm({ onSubmit, onCancel }: NewProductFormProps) {
       case "pricing":
         return (
           <div className="space-y-4">
-  <div className="grid grid-cols-2 gap-4">
-    <div className="space-y-1">
-      <label className="text-sm font-medium">Marked Price</label>
-      <input
-        type="number"
-        name="markedPrice" // Corrected name
-        value={formData.markedPrice}
-        onChange={handleChange}
-        min="0"
-        step="0.01"
-        className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400"
-        required
-      />
-    </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Marked Price</label>
+                <input
+                  type="number"
+                  name="markedPrice" // Corrected name
+                  value={formData.markedPrice}
+                  onChange={handleChange}
+                  min="0"
+                  step="0.01"
+                  className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400"
+                  required
+                />
+              </div>
 
-    <div className="space-y-1">
-      <label className="text-sm font-medium">Selling Price</label>
-      <input
-        type="number"
-        name="sellingPrice" // Corrected name
-        value={formData.sellingPrice}
-        onChange={handleChange}
-        min="0"
-        step="0.01"
-        className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400"
-        required
-      />
-    </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Selling Price</label>
+                <input
+                  type="number"
+                  name="sellingPrice" // Corrected name
+                  value={formData.sellingPrice}
+                  onChange={handleChange}
+                  min="0"
+                  step="0.01"
+                  className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400"
+                  required
+                />
+              </div>
 
-   
-
-    <div className="space-y-1">
-      <label className="text-sm font-medium">Stock</label>
-      <input
-        type="number"
-        name="stock" // Correct name
-        value={formData.stock}
-        onChange={handleChange}
-        min="0"
-        className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400"
-        required
-      />
-    </div>
-  </div>
-</div>
-
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Stock</label>
+                <input
+                  type="number"
+                  name="stock" // Correct name
+                  value={formData.stock}
+                  onChange={handleChange}
+                  min="0"
+                  className="w-full rounded-lg border px-3 py-2 text-sm focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400"
+                  required
+                />
+              </div>
+            </div>
+          </div>
         );
 
       case "media":
@@ -248,7 +264,7 @@ export function NewProductForm({ onSubmit, onCancel }: NewProductFormProps) {
         ].map(({ id, label }) => (
           <button
             key={id}
-            onClick={() => setCurrentSection(id)}
+            onClick={() => setCurrentSection(id as Section)}
             className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
               currentSection === id
                 ? "bg-primary-50 text-primary-700"
@@ -284,4 +300,4 @@ export function NewProductForm({ onSubmit, onCancel }: NewProductFormProps) {
       </div>
     </div>
   );
-} 
+}

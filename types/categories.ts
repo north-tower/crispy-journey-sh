@@ -8,3 +8,14 @@ export const MOCK_CATEGORIES = [
   { id: "97525e9c-a7ae-11ef-93d1-d4d252d1dd96", name: "Toys" },
 
 ];
+
+
+// src/types/api.ts
+export interface Category {
+  id: string;
+  name: string;
+  description: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}

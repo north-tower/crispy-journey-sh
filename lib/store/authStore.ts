@@ -159,23 +159,4 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
   
-
-// fetchProfile: async () => {
-//   const email = data.email;
-
-//   const accessToken = localStorage.getItem('accessToken');
-//   if (!accessToken) return;
-
-//   try {
-//     const response = await axios.get(`http://localhost:8900/api/users/${email}`, {
-//       headers: { Authorization: `Bearer ${accessToken}` },
-//     });
-
-//     set((state) => ({ ...state, user: response.data }));
-//   } catch (error) {
-//     console.error('Failed to fetch profile:', error.response?.data || error.message);
-//     throw error;
-//   }
-// },
-
 }));
