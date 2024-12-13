@@ -84,6 +84,7 @@ export default function PricingPage() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true); // Sidebar collapsed by default
   const [selectedOption, setSelectedOption] = useState("Home"); // Default view set to "Home"
 
+  
 
   const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
 

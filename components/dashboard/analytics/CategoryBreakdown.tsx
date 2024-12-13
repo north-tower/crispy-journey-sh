@@ -1,25 +1,31 @@
-// components/dashboard/analytics/CategoryBreakdown.tsx
 import { useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Sector } from "recharts";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown } from "lucide-react";
-import { CategorySales } from "@/types/analytics";
+import { useDashboardStats } from "@/lib/hooks/useDashboardStats";
 
-interface CategoryBreakdownProps {
-  data: CategorySales[];
-}
 
-const COLORS = [
-  "#10B981",
-  "#6366F1",
-  "#F59E0B",
-  "#EC4899",
-  "#8B5CF6",
-  "#14B8A6",
-];
+const COLORS = ["#10B981", "#6366F1", "#F59E0B", "#EC4899", "#8B5CF6", "#14B8A6"];
 
-export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
+export function CategoryBreakdown() {
   const [activeIndex, setActiveIndex] = useState<number | undefined>();
+  const [timeRange, setTimeRange] = useState<'daily' | 'weekly' | 'monthly' | 'yearly' | 'quarterly'>('monthly');
+
+  const { stats, filterByTimeRange, loading, error } = useDashboardStats();
+
+  const handleTimeRangeChange = async (range: typeof timeRange) => {
+    setTimeRange(range);
+    await filterByTimeRange(range);
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  // Convert sales to integers locally
+  const data = stats?.categorySales.map((category) => ({
+    ...category,
+    sales: parseInt(category.sales, 10),
+  })) || [];
 
   const renderActiveShape = (props: any) => {
     const {
@@ -60,20 +66,43 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
       <div className="space-y-6">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              Sales by Category
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900">Sales by Category</h3>
             <p className="text-sm text-gray-500">
               Distribution of sales across categories
             </p>
           </div>
+          <select
+            value={timeRange}
+            onChange={(e) => handleTimeRangeChange(e.target.value as typeof timeRange)}
+            className="border border-gray-300 rounded-lg px-3 py-2"
+          >
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="quarterly">Quarterly</option>
+            <option value="yearly">Yearly</option>
+          </select>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Chart */}
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
+              
+            {/* <PieChart width={450} height={450}>
+          <Pie
+            dataKey="sales"
+            isAnimationActive={false}
+            data={data}
+            cx="50%"
+            cy="50%"
+            outerRadius={80}
+            fill="#8884d8"
+            label
+          />        
+          
+        </PieChart> */}
+          <PieChart width={550} height={400}>
                 <Pie
                   activeIndex={activeIndex}
                   activeShape={renderActiveShape}
@@ -100,15 +129,15 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
 
           {/* Category List */}
           <div className="space-y-4">
-            {data?.map((category, index) => (
+            {data.map((category, index) => (
               <motion.div
-                key={category.category}
+                key={category.categoryId}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors"
-                onMouseEnter={() => setActiveIndex(index)}
-                onMouseLeave={() => setActiveIndex(undefined)}
+                className={`flex items-center gap-4 p-3 rounded-xl transition-colors ${
+                  activeIndex === index ? "bg-gray-100" : "hover:bg-gray-50"
+                }`}
               >
                 <div
                   className="w-3 h-3 rounded-full"
@@ -116,29 +145,17 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
                 />
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <p className="font-medium text-gray-900">
-                      {category.category}
-                    </p>
-                    <span className="text-sm text-gray-500">
-                      {category.percentage}%
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div
-                      className={`flex items-center gap-1 text-sm ${
-                        category.trend > 0 ? "text-green-600" : "text-red-600"
-                      }`}
-                    >
-                      {category.trend > 0 ? (
-                        <TrendingUp className="w-4 h-4" />
+                    <p className="font-medium text-gray-900">{category.categoryName}</p>
+                    <div className="flex items-center gap-1">
+                      {category.sales > 0 ? (
+                        <TrendingUp className="w-4 h-4 text-green-500" />
                       ) : (
-                        <TrendingDown className="w-4 h-4" />
+                        <TrendingDown className="w-4 h-4 text-red-500" />
                       )}
-                      {Math.abs(category.trend)}%
+                      <span className="text-sm text-gray-500">
+                        {category.sales}%
+                      </span>
                     </div>
-                    <span className="text-sm text-gray-400">
-                      vs last period
-                    </span>
                   </div>
                 </div>
               </motion.div>

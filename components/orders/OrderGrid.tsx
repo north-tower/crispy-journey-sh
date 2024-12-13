@@ -47,7 +47,7 @@ export function OrderGrid({ orders }: OrderGridProps) {
                 {new Date(order.createdAt).toLocaleDateString()}
               </div>
               <span className="text-sm font-medium text-gray-900">
-                ${order.total.toFixed(2)}
+                ${Number(order.total)}
               </span>
             </div>
           </div>

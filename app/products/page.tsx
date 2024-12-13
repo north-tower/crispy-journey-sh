@@ -1,11 +1,11 @@
-// pages/ProductsPage.tsx
 "use client";
+
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { ProductHeader } from "@/components/products/ProductHeader";
 import { useState, useEffect, useMemo, Suspense } from "react";
-import { products } from "@/types/products";
 import { AlertCircle } from "lucide-react";
 import dynamic from "next/dynamic";
+import { fetchProductsAPI } from "@/services/products";
 
 // Dynamically import components with loading states
 const DynamicProductGrid = dynamic(
@@ -24,7 +24,7 @@ const DynamicProductTable = dynamic(
   }
 );
 
-// Loading states components
+// Loading state components
 const LoadingGrid = () => (
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-pulse">
     {[...Array(8)].map((_, i) => (
@@ -46,36 +46,65 @@ export default function ProductsPage() {
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [products, setProducts] = useState<any[]>([]); // Store fetched products
+  const [error, setError] = useState<string | null>(null);
 
-  // Debounced search query
+  const fetchProducts = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const data = await fetchProductsAPI();
+      const updatedProducts = data.map((product: any) => ({
+        ...product,
+        status:
+          product.stock >= 10
+            ? "in_stock"
+            : product.stock >= 0 && product.stock <= 10
+            ? "low_stock"
+            : "out_of_stock",
+      }));
+      
+
+      setProducts(updatedProducts);
+    } catch (err: any) {
+      setError(err.message || "Failed to fetch products. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  // Fetch products on page load
+  useEffect(() => {
+    
+
+    fetchProducts();
+  }, []);
+
+  const handleProductCreated = () => {
+    fetchProducts(); // Trigger data reload when a new product is created
+  };
+
+  // Handle debounced search query
   const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(searchQuery), 300);
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Force grid view on smaller screens with debounce
+  // Enforce grid view on small screens
   useEffect(() => {
     const handleResize = () => {
-      requestAnimationFrame(() => {
-        if (window.innerWidth < 768) {
-          setViewMode("grid");
-        }
-      });
+      if (window.innerWidth < 768) {
+        setViewMode("grid");
+      }
     };
 
-    handleResize();
+    handleResize(); // Check on page load
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Simulate loading state
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Memoized filtered products with optimized search
+  // Filter products based on search query
   const filteredProducts = useMemo(() => {
     const searchLower = debouncedQuery.toLowerCase();
     return searchLower
@@ -83,12 +112,12 @@ export default function ProductsPage() {
           (product) =>
             product.name.toLowerCase().includes(searchLower) ||
             product.description.toLowerCase().includes(searchLower) ||
-            product.category.toLowerCase().includes(searchLower)
+            product.categoryName.toLowerCase().includes(searchLower)
         )
       : products;
-  }, [debouncedQuery]);
+  }, [debouncedQuery, products]);
 
-  // Memoized view component
+  // Render view component (grid or table)
   const ProductView = useMemo(() => {
     if (isLoading) return null;
 
@@ -103,6 +132,7 @@ export default function ProductsPage() {
 
     const ViewComponent =
       viewMode === "table" ? DynamicProductTable : DynamicProductGrid;
+
     return <ViewComponent products={filteredProducts} />;
   }, [viewMode, filteredProducts, isLoading]);
 
@@ -113,22 +143,31 @@ export default function ProductsPage() {
           viewMode={viewMode}
           onViewModeChange={(mode) => setViewMode(mode)}
           onSearch={setSearchQuery}
+          onProductCreated={handleProductCreated} // Trigger data refresh
         />
 
         <div className="min-h-[500px]">
-          {" "}
-          {/* Fixed minimum height container */}
-          <Suspense
-            fallback={viewMode === "table" ? <LoadingTable /> : <LoadingGrid />}
-          >
-            {/* Show Table only on md and larger */}
-            <div className="hidden md:block">{ProductView}</div>
-
-            {/* Always show Grid view on small screens */}
-            <div className="block md:hidden">
-              <DynamicProductGrid products={filteredProducts} />
+          {error ? (
+            <div className="p-4 text-center text-red-600">
+              <AlertCircle className="w-12 h-12 mx-auto mb-3" />
+              <p>{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-4 rounded-lg bg-primary-400 px-4 py-2 text-sm font-medium text-white hover:bg-primary-500"
+              >
+                Retry
+              </button>
             </div>
-          </Suspense>
+          ) : (
+            <Suspense
+              fallback={viewMode === "table" ? <LoadingTable /> : <LoadingGrid />}
+            >
+              <div className="hidden md:block">{ProductView}</div>
+              <div className="block md:hidden">
+                <DynamicProductGrid products={filteredProducts} />
+              </div>
+            </Suspense>
+          )}
         </div>
       </div>
     </DashboardLayout>

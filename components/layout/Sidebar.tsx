@@ -8,6 +8,9 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils/utils";
 import { navigation } from "@/types/navigation";
 import { ProfileModal } from "./ProfileModal";
+import { useAuthStore } from "@/lib/store/authStore";
+
+
 
 interface ProfileProps {
   name: string;
@@ -15,17 +18,30 @@ interface ProfileProps {
   initials: string;
 }
 
-const profile: ProfileProps = {
-  name: "John Smith",
-  role: "Store Owner",
-  initials: "JS",
-};
+
 
 export function Sidebar() {
+
+
+
+
   const pathname = usePathname();
   const [openSections, setOpenSections] = useState<string[]>([]);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-
+  const user = useAuthStore((state) => state.user);
+  const profile: ProfileProps = {
+    name: user?.firstName,
+    role: "Store Owner",
+    initials: generateInitials(user?.firstName, user?.lastName),
+  };
+  
+  function generateInitials(firstName?: string, lastName?: string): string {
+    if (!firstName && !lastName) return "N/A"; // Handle case when no name is available
+    const firstInitial = firstName?.charAt(0).toUpperCase() || "";
+    const lastInitial = lastName?.charAt(0).toUpperCase() || "";
+    return `${firstInitial}${lastInitial}`;
+  }
+  
   const handleProfileClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsProfileModalOpen(true);

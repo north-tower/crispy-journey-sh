@@ -1,6 +1,10 @@
 // components/layout/ProfileModal.tsx
+
+import { useAuthStore } from "@/lib/store/authStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, Store, LogOut, HelpCircle, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -13,6 +17,16 @@ interface ProfileModalProps {
 }
 
 export function ProfileModal({ isOpen, onClose, profile }: ProfileModalProps) {
+ 
+  const router = useRouter();
+  const logout = useAuthStore((state) => state.logout);
+
+
+
+  const handleLogout = () => {
+   
+    logout();
+  };
   const menuItems = [
     {
       icon: User,
@@ -102,7 +116,7 @@ export function ProfileModal({ isOpen, onClose, profile }: ProfileModalProps) {
 
             {/* Footer */}
             <div className="p-2 border-t border-gray-100">
-              <motion.button
+              <motion.button onClick={handleLogout}
                 whileHover={{ scale: 1.02, x: 4 }}
                 whileTap={{ scale: 0.98 }}
                 className="w-full flex items-center gap-3 p-3 rounded-xl text-left text-sm hover:bg-red-50 text-red-600 transition-colors"
@@ -111,7 +125,7 @@ export function ProfileModal({ isOpen, onClose, profile }: ProfileModalProps) {
                   <LogOut className="w-4 h-4 text-red-500" />
                 </div>
                 <div>
-                  <p className="font-medium">Log Out</p>
+                  <p onClick={handleLogout} className="font-medium">Log Out</p>
                   <p className="text-xs opacity-75">Sign out of your account</p>
                 </div>
               </motion.button>

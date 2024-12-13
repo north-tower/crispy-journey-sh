@@ -13,18 +13,24 @@ export default function Home() {
   const [showTimeRangeDropdown, setShowTimeRangeDropdown] = useState(false);
 
   const handleTimeRangeChange = useCallback((range: TimeRange) => {
+    console.log('handleTimeRangeChange called with:', range);
     setTimeRange(range);
     setShowTimeRangeDropdown(false);
     filterByTimeRange(range);
   }, [filterByTimeRange]);
+  
 
   const toggleTimeRangeDropdown = useCallback(() => {
     setShowTimeRangeDropdown(prev => !prev);
   }, []);
 
+  console.log('Home component rendered');
+
+
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+   <DashboardLayout>
+
+<div className="space-y-6">
         <DashboardHeader 
           stats={stats}
           loading={loading}
@@ -42,6 +48,8 @@ export default function Home() {
           onRetry={refreshStats}
         />
       </div>
-    </DashboardLayout>
+   </DashboardLayout>
+  
+    
   );
 }

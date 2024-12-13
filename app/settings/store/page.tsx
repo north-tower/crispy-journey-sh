@@ -1,7 +1,6 @@
-// app/settings/store/page.tsx
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StoreInfo } from "@/components/settings/store/StoreInfo";
 import { StoreAddress } from "@/components/settings/store/StoreAddress";
@@ -10,11 +9,30 @@ import { StoreShipping } from "@/components/settings/store/StoreShipping";
 import { motion } from "framer-motion";
 import { Store, Building2, CreditCard, Truck } from "lucide-react";
 import { debounce } from "lodash";
+import axios from "axios";
 
 type TabType = "general" | "address" | "payment" | "shipping";
 
 export default function StoreSettings() {
   const [activeTab, setActiveTab] = useState<TabType>("general");
+  const [storeData, setStoreData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch seller data from the API
+  useEffect(() => {
+    const fetchStoreData = async () => {
+      try {
+        const response = await axios.get("http://localhost:8900/api/sellers/email/33@gmail.com");
+        setStoreData(response.data);
+      } catch (error) {
+        console.error("Failed to fetch store data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStoreData();
+  }, []);
 
   // Debounced tab change
   const handleTabChange = useCallback(
@@ -52,6 +70,10 @@ export default function StoreSettings() {
   const ActiveComponent = useMemo(() => {
     return tabs.find((tab) => tab.id === activeTab)?.component || StoreInfo;
   }, [activeTab, tabs]);
+
+  if (loading) {
+    return <div>Loading...</div>; // Simple loader while fetching data
+  }
 
   return (
     <DashboardLayout>
@@ -117,7 +139,7 @@ export default function StoreSettings() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <ActiveComponent />
+              <ActiveComponent storeData={storeData} />
             </motion.div>
           </div>
         </div>

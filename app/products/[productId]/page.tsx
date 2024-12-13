@@ -9,28 +9,97 @@ import {
   Clock,
   Tag,
   ShoppingCart,
+  Save,
+  X,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { products } from "@/types/products";
+import apiClient from "@/lib/axios";
+import { toast } from "react-toastify"; 
+
 
 export default function ProductDetailPage() {
   const router = useRouter();
   const params = useParams();
   const productId = params.productId as string;
-  const [product, setProduct] = useState(
-    products.find((p) => p.id === productId)
-  );
+  const [product, setProduct] = useState<products | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Inline edit state
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedMarkedPrice, setEditedMarkedPrice] = useState("");
+  const [editedSellingPrice, setEditedSellingPrice] = useState("");
+
+  const [editedStock, setEditedStock] = useState("");
+
   useEffect(() => {
-    if (product) {
-      setLoading(false);
-    } else {
-      router.push("/products");
+    const fetchProduct = async () => {
+      try {
+        const response = await apiClient.get(
+          `http://localhost:8900/api/products/${productId}`
+        );
+        const data = response.data;
+
+        const updatedProduct = {
+          ...data,
+          status:
+          data.stock >= 10
+            ? "in_stock"
+            : data.stock >= 0 && data.stock <= 10
+            ? "low_stock"
+            : "out_of_stock",
+        };
+
+        setProduct(updatedProduct);
+        setEditedSellingPrice(data.sellingPrice);
+        setEditedMarkedPrice(data.markedPrice);
+
+        setEditedStock(data.stock);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching product:", error);
+        setLoading(false);
+        router.push("/products");
+      }
+    };
+
+    fetchProduct();
+  }, [productId, router]);
+
+  const handleSave = async () => {
+    if (!product) return;
+
+    try {
+      const updatedProduct = { ...product, sellingPrice: editedSellingPrice, stock: editedStock , markedPrice: editedMarkedPrice};
+      await apiClient.patch(`http://localhost:8900/api/products/${product.id}`, {
+        sellingPrice: editedSellingPrice,
+        markedPrice: editedMarkedPrice,
+        stock: editedStock,
+      });
+
+      setProduct(updatedProduct);
+      setIsEditing(false);
+      toast.success("Product edited successfully!");
+
+    } catch (error) {
+      console.error("Error saving product:", error);
     }
-  }, [product, router]);
+  };
+
+  const handleDelete = async () => {
+    if (!product) return;
+  
+    try {
+      await apiClient.patch(`http://localhost:8900/api/products/${product.id}/soft-delete`);
+      toast.success("Product deleted successfully!");
+      router.push("/products"); // Redirect back to the products list
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      toast.error("Failed to delete the product.");
+    }
+  };
+  
 
   if (loading) {
     return (
@@ -67,30 +136,17 @@ export default function ProductDetailPage() {
         </button>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="space-y-4"
-          >
+          <motion.div className="space-y-4">
             <div className="aspect-square rounded-lg border border-border overflow-hidden group relative">
               <img
-                src={product.imageUrl}
+                src={`http://localhost:8900/uploads/${product.images?.[0]?.filename}`}
                 alt={product.name}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <button className="bg-white text-black px-4 py-2 rounded-md transform translate-y-4 group-hover:translate-y-0 transition-transform">
-                  View Full Image
-                </button>
-              </div>
             </div>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="space-y-6"
-          >
+          <motion.div className="space-y-6">
             <div className="flex items-start justify-between">
               <div>
                 <h1 className="text-3xl font-bold">{product.name}</h1>
@@ -99,12 +155,36 @@ export default function ProductDetailPage() {
                 </p>
               </div>
               <div className="flex gap-2">
-                <button className="p-2 rounded-md hover:bg-muted transition-colors">
-                  <Edit className="h-5 w-5" />
-                </button>
-                <button className="p-2 rounded-md hover:bg-red-50 text-red-500 transition-colors">
+                {isEditing ? (
+                  <>
+                    <button
+                      onClick={handleSave}
+                      className="p-2 rounded-md bg-green-500 text-white hover:bg-green-600"
+                    >
+                      <Save className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={() => setIsEditing(false)}
+                      className="p-2 rounded-md bg-red-500 text-white hover:bg-red-600"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="p-2 rounded-md hover:bg-muted transition-colors"
+                  >
+                    <Edit className="h-5 w-5" />
+                  </button>
+                  <button className="p-2 rounded-md hover:bg-red-50 text-red-500 transition-colors" onClick={handleDelete}>
                   <Trash2 className="h-5 w-5" />
                 </button>
+                  </>
+                  
+                  
+                )}
               </div>
             </div>
 
@@ -114,8 +194,35 @@ export default function ProductDetailPage() {
                   <Tag className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Price</p>
-                  <p className="font-medium">${product.price}</p>
+                  <p className="text-sm text-muted-foreground">Marked Price</p>
+                  {isEditing ? (
+                    <input
+                      type="number"
+                      value={editedMarkedPrice}
+                      onChange={(e) => setEditedMarkedPrice(e.target.value)}
+                      className="p-1 border rounded"
+                    />
+                  ) : (
+                    <p className="font-medium">KES{product.markedPrice}</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-md">
+                  <Tag className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Selling Price</p>
+                  {isEditing ? (
+                    <input
+                      type="number"
+                      value={editedSellingPrice}
+                      onChange={(e) => setEditedSellingPrice(e.target.value)}
+                      className="p-1 border rounded"
+                    />
+                  ) : (
+                    <p className="font-medium">KES{product.sellingPrice}</p>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -124,8 +231,18 @@ export default function ProductDetailPage() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Stock</p>
-                  <p className="font-medium">{product.stock} units</p>
+                  {isEditing ? (
+                    <input
+                      type="number"
+                      value={editedStock}
+                      onChange={(e) => setEditedStock(e.target.value)}
+                      className="p-1 border rounded"
+                    />
+                  ) : (
+                    <p className="font-medium">{product.stock} units</p>
+                  )}
                 </div>
+                
               </div>
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-primary/10 rounded-md">
@@ -133,7 +250,7 @@ export default function ProductDetailPage() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Category</p>
-                  <p className="font-medium">{product.category}</p>
+                  <p className="font-medium">{product.categoryName}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -154,24 +271,6 @@ export default function ProductDetailPage() {
                   >
                     {product.status.replace("_", " ")}
                   </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold">Product Details</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 rounded-lg bg-muted/50">
-                  <p className="text-sm font-medium">Added On</p>
-                  <p className="text-muted-foreground">
-                    {new Date(product.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-                <div className="p-4 rounded-lg bg-muted/50">
-                  <p className="text-sm font-medium">Last Updated</p>
-                  <p className="text-muted-foreground">
-                    {new Date(product.createdAt).toLocaleDateString()}
-                  </p>
                 </div>
               </div>
             </div>

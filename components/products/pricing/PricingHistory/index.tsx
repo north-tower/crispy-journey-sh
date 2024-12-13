@@ -91,7 +91,7 @@ export function PricingHistory({ changes = [], loading }: PricingHistoryProps) {
 
       {/* Changes List */}
       <div className="divide-y divide-gray-100">
-        <AnimatePresence initial={false}>
+        <AnimatePresence initial={false} >
           {filteredChanges.length > 0 ? (
             filteredChanges.map((change) => (
               <PriceChangeItem key={change.id} change={change} />
@@ -152,10 +152,10 @@ function PriceChangeItem({ change }: PriceChangeItemProps) {
         <div className="text-right">
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">
-              ${change.oldPrice.toFixed(2)} →
+              ${change.oldPrice} →
             </span>
             <span className="text-sm font-medium text-gray-900">
-              ${change.newPrice.toFixed(2)}
+              ${change.newPrice}
             </span>
             <span
               className={`text-sm font-medium ${

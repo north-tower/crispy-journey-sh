@@ -49,7 +49,7 @@ export function TopProducts({
 
   const sortedProducts = [...products]
     .filter((product) =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase())
+      product.productName.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => b[sortBy] - a[sortBy]);
 
@@ -122,106 +122,103 @@ export function TopProducts({
           </div>
         ) : (
           <div className="space-y-2">
-            {sortedProducts.map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="relative group"
-              >
-                <div className="flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-all duration-200">
-                  {/* Product Image/Placeholder */}
-                  <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
-                    {product.image ? (
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="text-lg font-medium text-gray-400">
-                        {product.name.charAt(0)}
-                      </div>
-                    )}
-                  </div>
+  {sortedProducts.map((product, index) => (
+    <motion.div
+      key={product.id || `${product.productName}-${index}`} // Fallback to unique key
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.05 }}
+      className="relative group"
+    >
+      <div className="flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-all duration-200">
+        {/* Product Image/Placeholder */}
+        <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
+          {product.image ? (
+            <img
+              src={product.image}
+              alt={product.productName}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="text-lg font-medium text-gray-400">
+              {product.productName.charAt(0)}
+            </div>
+          )}
+        </div>
 
-                  {/* Product Info */}
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-medium text-gray-900">
-                        {product.name}
-                      </h4>
-                      <button
-                        onClick={() =>
-                          setShowOptions(
-                            showOptions === product.id ? null : product.id
-                          )
-                        }
-                        className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-                      >
-                        <MoreHorizontal className="w-4 h-4" />
-                      </button>
-                    </div>
-                    <div className="flex items-center gap-4 mt-1">
-                      <span className="text-sm text-gray-500">
-                        Revenue: {formatCurrency(product.revenue)}
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        Sales: {formatNumber(product.sales)}
-                      </span>
-                      <div
-                        className={`flex items-center gap-1 text-sm ${
-                          product.trend > 0 ? "text-green-600" : "text-red-600"
-                        }`}
-                      >
-                        {product.trend > 0 ? (
-                          <TrendingUp className="w-4 h-4" />
-                        ) : (
-                          <TrendingDown className="w-4 h-4" />
-                        )}
-                        {Math.abs(product.trend)}%
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Quick Actions */}
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {/* Options Dropdown */}
-                  <AnimatePresence>
-                    {showOptions === product.id && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        className="absolute right-4 top-12 w-48 bg-white rounded-xl shadow-lg border border-gray-100 p-2 z-10"
-                      >
-                        <div className="space-y-1">
-                          {[
-                            "View Details",
-                            "Edit Product",
-                            "View Analytics",
-                          ].map((action) => (
-                            <button
-                              key={action}
-                              className="w-full px-3 py-2 text-sm text-left text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
-                            >
-                              {action}
-                            </button>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </motion.div>
-            ))}
+        {/* Product Info */}
+        <div className="flex-1">
+          <div className="flex items-center justify-between">
+            <h4 className="font-medium text-gray-900">
+              {product.productName}
+            </h4>
+            <button
+              onClick={() =>
+                setShowOptions(showOptions === product.id ? null : product.id)
+              }
+              className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <MoreHorizontal className="w-4 h-4" />
+            </button>
           </div>
+          <div className="flex items-center gap-4 mt-1">
+            <span className="text-sm text-gray-500">
+              Revenue: {formatCurrency(product.sales)}
+            </span>
+            <span className="text-sm text-gray-500">
+              Sales: {formatNumber(product.sales)}
+            </span>
+            <div
+              className={`flex items-center gap-1 text-sm ${
+                product.trend > 0 ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {product.trend > 0 ? (
+                <TrendingUp className="w-4 h-4" />
+              ) : (
+                <TrendingDown className="w-4 h-4" />
+              )}
+              {Math.abs(product.trend)}%
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+          <button className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Options Dropdown */}
+        <AnimatePresence>
+          {showOptions === product.id && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="absolute right-4 top-12 w-48 bg-white rounded-xl shadow-lg border border-gray-100 p-2 z-10"
+            >
+              <div className="space-y-1">
+                {["View Details", "Edit Product", "View Analytics"].map(
+                  (action) => (
+                    <button
+                      key={`${product.id}-${action}`} // Ensures unique keys for dropdown items
+                      className="w-full px-3 py-2 text-sm text-left text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                    >
+                      {action}
+                    </button>
+                  )
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  ))}
+</div>
+
         )}
       </div>
     </div>

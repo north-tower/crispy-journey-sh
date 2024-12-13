@@ -1,5 +1,4 @@
-// components/inventory/InventoryOverview.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -17,18 +16,40 @@ interface InventoryOverviewProps {
   timeframe: "day" | "week" | "month";
 }
 
+interface InventoryData {
+  category_name: string;
+  totalStock: number;  // Aggregated stock data
+}
+
 export function InventoryOverview({ timeframe }: InventoryOverviewProps) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [data, setData] = useState<any[]>([]);
 
-  // Mock data - replace with real data
-  const data = [
-    { name: "Electronics", inStock: 120, lowStock: 15, outOfStock: 5 },
-    { name: "Clothing", inStock: 85, lowStock: 20, outOfStock: 8 },
-    { name: "Books", inStock: 45, lowStock: 10, outOfStock: 2 },
-    { name: "Home", inStock: 95, lowStock: 12, outOfStock: 4 },
-    { name: "Sports", inStock: 60, lowStock: 8, outOfStock: 3 },
-  ];
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`http://localhost:8900/api/products/overview/inventory?timeframe=month`);
+        const result: InventoryData[] = await response.json();
+        
+        // Transform the data to match the chart structure
+        const transformedData = result.map((category) => ({
+          name: category.category_name,
+          inStock: category.totalStock, // Replace this with actual stock breakdown if available
+          lowStock: 10,  // Placeholder, adjust if you have detailed stock info
+          outOfStock: 20,  // Placeholder, adjust if you have detailed stock info
+        }));
 
+        setData(transformedData);
+      } catch (error) {
+        console.error("Error fetching inventory data:", error);
+      }
+    };
+
+    fetchData();
+  }, [timeframe]);
+
+  console.log(data)
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -70,6 +91,7 @@ export function InventoryOverview({ timeframe }: InventoryOverviewProps) {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={data}
+              width={300} height={400}
               margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />

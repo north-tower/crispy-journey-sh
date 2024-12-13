@@ -25,46 +25,15 @@ export function usePricingData(): UsePricingDataReturn {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Mock data
-      const mockSuggestions: PricingSuggestion[] = [
-        {
-          id: "1",
-          productId: "PROD-001",
-          productName: "Wireless Earbuds",
-          currentPrice: 99.99,
-          suggestedPrice: 129.99,
-          potentialImpact: 15.5,
-          reason:
-            "High demand and competitor pricing analysis suggests room for increase",
-          priority: "high",
-        },
-        {
-          id: "2",
-          productId: "PROD-002",
-          productName: "Smart Watch",
-          currentPrice: 199.99,
-          suggestedPrice: 179.99,
-          potentialImpact: -5.2,
-          reason: "Multiple competitors have reduced prices",
-          priority: "medium",
-        },
-        // Add more mock suggestions
-      ];
+      const response = await fetch('http://localhost:8900/api/products/overview/data');
+      if (!response.ok) {
+        throw new Error('Failed to fetch pricing data');
+      }
+      const data = await response.json();
 
-      setMetrics({
-        averageMargin: 32.5,
-        recentChanges: 24,
-        scheduledChanges: 8,
-        promotionalProducts: 12,
-        totalRevenue: 125000,
-        marginTrend: 5.2,
-      });
-
-      setChanges([
-        // Add mock price changes
-      ]);
-
-      setSuggestions(mockSuggestions);
+      setMetrics(data.metrics);
+      setChanges(data.changes);
+      setSuggestions(data.suggestions);
     } catch (err) {
       setError(err as Error);
     } finally {
@@ -85,3 +54,4 @@ export function usePricingData(): UsePricingDataReturn {
     refreshData: fetchData,
   };
 }
+

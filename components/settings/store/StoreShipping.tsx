@@ -1,25 +1,30 @@
-// components/settings/store/StoreShipping.tsx
 import { Truck, Clock } from "lucide-react";
 import { SettingItem } from "./SettingItem";
 
-export function StoreShipping() {
+export function StoreShipping({ storeData }) {
+  const { shippingZones, processingTime } = storeData;
+
   const settings = [
     {
       icon: Truck,
       title: "Shipping Zones",
-      description: "Configure shipping rates and zones",
+      description: `Currently configured for: ${shippingZones.join(", ")}`,
       action: {
         label: "Manage",
-        onClick: () => {},
+        onClick: () => {
+          console.log("Managing shipping zones"); // Replace with actual functionality
+        },
       },
     },
     {
       icon: Clock,
       title: "Processing Time",
-      description: "Set order processing timeframes",
+      description: `Current processing time: ${processingTime}`,
       action: {
         label: "Configure",
-        onClick: () => {},
+        onClick: () => {
+          console.log("Configuring processing time"); // Replace with actual functionality
+        },
       },
     },
   ];

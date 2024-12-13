@@ -5,6 +5,7 @@ import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { motion, AnimatePresence } from "framer-motion";
 
+
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
@@ -22,7 +23,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <div className="flex h-screen font-mono bg-gray-50/30">
+    
+ <div className="flex h-screen font-mono bg-gray-50/30">
       {/* Backdrop for mobile */}
       <AnimatePresence mode="wait">
         {isMobile && sidebarOpen && (
@@ -89,5 +91,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         </main>
       </motion.div>
     </div>
+
+   
   );
 }
