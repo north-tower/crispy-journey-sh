@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo,  } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Order } from "@/types/orders";
 import { motion } from "framer-motion";
@@ -101,7 +101,7 @@ export default function ActiveOrdersPage() {
                 all: orders.length,
                 pending: orders.filter((o) => o.status === "PENDING").length,
                 processing: orders.filter((o) => o.status === "PROCESSING").length,
-                ready: orders.filter((o) => o.status === "READY").length,
+                ready: orders.filter((o) => o.status === "SHIPPED").length,
                 shipped: orders.filter((o) => o.status === "SHIPPED").length,
               }}
               onResetStatus={resetStatusFilter} // Reset status

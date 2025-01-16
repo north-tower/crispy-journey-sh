@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DollarSign, Percent, Star, TrendingUp, Edit2, Trash2, BarChart, Save, X, RefreshCw } from 'lucide-react';
+import { DollarSign,  Star,  Edit2, Trash2, BarChart, Save, X, RefreshCw } from 'lucide-react';
 import { Product } from '@/types/products';
 
 interface DiscountedProductsGridProps {

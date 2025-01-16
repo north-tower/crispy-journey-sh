@@ -11,19 +11,21 @@ import {
   Package,
   Users,
   TrendingUp,
+  LucideIcon,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { TopProducts } from "@/components/reports/sales/TopProducts";
 import { SalesMetrics } from "@/components/reports/sales/SalesMetrics";
 import { exportSalesReport } from "@/lib/utils/exportData";
 import { debounce } from "lodash";
+import { PricingMetrics } from "@/types/pricing";
 
 // Types
 interface SalesData {
   title: string;
   value: string;
   change: string;
-  icon: any;
+  icon: LucideIcon;
   trend: "up" | "down";
 }
 
@@ -54,7 +56,7 @@ export default function SalesReport() {
 
       // Map the data into the format required for metrics and sales trend
       setMetrics(
-        data.salesMetrics.map((metric: any) => ({
+        data.salesMetrics.map((metric: PricingMetrics) => ({
           title: metric.title,
           value: metric.value,
           change: metric.change,
@@ -121,7 +123,7 @@ export default function SalesReport() {
                 Sales Report
               </h1>
               <p className="text-sm text-gray-500">
-                Overview of your store's performance
+                Overview of your stores performance
               </p>
             </div>
           </div>

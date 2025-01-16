@@ -54,7 +54,7 @@ const ProductTable = React.memo(function ProductTable({
                     <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center">
                       <img 
                    
-                        src={`http://localhost:8900/uploads/${product.images?.[0]?.filename}`}
+                        src={`http://16.16.68.79:8900/uploads/${product.images?.[0]?.filename}`}
                         alt={product.name}
                         className="w-8 h-8 object-cover rounded"
                       />

@@ -30,22 +30,24 @@ export default function VerifyPage() {
           },
           body: JSON.stringify({ token }),
         });
-
+    
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.message || "Failed to verify email.");
         }
-
+    
         const data = await response.json();
-
+    
         setStatus("success");
         setMessage("Verification successful! You can now proceed to login.");
         setLoginUrl(data.loginUrl); // loginUrl now includes the username
-      } catch (err: any) {
+      } catch (error) {
+        // Include the error's message in the displayed message
         setStatus("error");
-        setMessage(err.message || "An error occurred during verification.");
+        setMessage(`An error occurred during verification: ${error.message}`);
       }
     }
+    
 
     verifyEmail();
   }, [searchParams]);

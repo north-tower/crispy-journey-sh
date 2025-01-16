@@ -15,14 +15,13 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   DollarSign,
-  Target,
+
   PieChart,
   Activity,
 } from "lucide-react";
 import { useDashboardStats } from "@/lib/hooks/useDashboardStats";
 import { formatCurrency, calculateGrowth } from "@/lib/utils/charts";
-import { SalesTrend } from "@/types/analytics";
-import MyBarChart from "./MyBarChart";
+
 
 interface RevenueChartProps {
   target?: number;
@@ -32,7 +31,7 @@ export function RevenueChart({ target = 100000 }: RevenueChartProps) {
   const { stats, loading, error, filterByTimeRange } = useDashboardStats();
   const [timeRange, setTimeRange] = useState<"weekly" | "monthly" | "quarterly">("monthly");
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
-  const [showTooltip, setShowTooltip] = useState(false);
+  const [ setShowTooltip] = useState(false);
 
   // Fetch data based on the selected time range
   useEffect(() => {
@@ -154,7 +153,7 @@ export function RevenueChart({ target = 100000 }: RevenueChartProps) {
                   key={option.value}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setTimeRange(option.value as any)}
+                  onClick={() => setTimeRange(option.value)}
                   className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200
                     ${
                       timeRange === option.value

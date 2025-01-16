@@ -22,7 +22,7 @@ export const useCategoriesStore = create<CategoriesState>((set) => ({
       const categories = await categoriesService.getAll();
       console.log('Fetched categories:', categories); // Debug log
       set({ categories, isLoading: false });
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error fetching categories:', error); // Debug log
       set({ 
         error: error.message || 'Failed to fetch categories',

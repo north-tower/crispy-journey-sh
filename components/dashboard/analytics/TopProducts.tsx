@@ -7,8 +7,7 @@ import {
   MoreHorizontal,
   ArrowRight,
   Search,
-  Filter,
-  ChevronDown,
+  
 } from "lucide-react";
 import { ProductPerformance } from "@/types/dashboard";
 import { formatCurrency, formatNumber } from "@/lib/utils/charts";

@@ -29,14 +29,14 @@ export function TopProducts({ timeRange }: { timeRange: string }) {
 
         const data = await response.json();
         setTopProducts(
-          data.topProducts.map((product: any) => ({
+          data.topProducts.map((product) => ({
             productId: product.productId,
             productName: product.productName,
             quantitySold: parseInt(product.quantitySold, 10),
             sales: parseFloat(product.sales),
           }))
         );
-      } catch (err: any) {
+      } catch (err) {
         setError(err.message || "Something went wrong.");
       } finally {
         setLoading(false);

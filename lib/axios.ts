@@ -1,16 +1,21 @@
 // src/lib/axios.ts
-import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from 'axios';
 import { useAuthStore } from './store/authStore';
 
 // Define custom error types
 export interface ApiError {
   message: string;
   status: number;
-  data?: any;
+  data?: unknown; // Replace `any` with `unknown` for stricter typing
 }
 
 // Type for the API response
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   data: T;
   message?: string;
   status: number;
@@ -29,11 +34,11 @@ const apiClient: AxiosInstance = axios.create({
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const accessToken = useAuthStore.getState().accessToken;
-    
+
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
-    
+
     return config;
   },
   (error: AxiosError): Promise<ApiError> => {
@@ -47,10 +52,10 @@ apiClient.interceptors.request.use(
 
 // Response interceptor with enhanced error handling and retry logic
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response: AxiosResponse) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config;
-    
+
     // Type guard to ensure originalRequest exists
     if (!originalRequest) {
       return Promise.reject({
@@ -82,13 +87,16 @@ apiClient.interceptors.response.use(
 
       // Handle other error cases
       const errorResponse: ApiError = {
-        message: error.response?.data?.message || error.message || 'An unexpected error occurred',
+        message:
+          error.response?.data?.message ||
+          error.message ||
+          'An unexpected error occurred',
         status: error.response?.status || 500,
         data: error.response?.data,
       };
 
       return Promise.reject(errorResponse);
-    } catch (refreshError) {
+    } catch {
       // Handle errors during the refresh token process
       return Promise.reject({
         message: 'Authentication failed. Please login again.',
@@ -105,17 +113,17 @@ export const api = {
     return response.data;
   },
 
-  post: async <T>(url: string, data = {}, config = {}): Promise<T> => {
+  post: async <T>(url: string, data: Record<string, unknown> = {}, config = {}): Promise<T> => {
     const response = await apiClient.post<T>(url, data, config);
     return response.data;
   },
 
-  put: async <T>(url: string, data = {}, config = {}): Promise<T> => {
+  put: async <T>(url: string, data: Record<string, unknown> = {}, config = {}): Promise<T> => {
     const response = await apiClient.put<T>(url, data, config);
     return response.data;
   },
 
-  patch: async <T>(url: string, data = {}, config = {}): Promise<T> => {
+  patch: async <T>(url: string, data: Record<string, unknown> = {}, config = {}): Promise<T> => {
     const response = await apiClient.patch<T>(url, data, config);
     return response.data;
   },

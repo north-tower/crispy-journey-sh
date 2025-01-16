@@ -76,7 +76,7 @@ export function PricingHistory({ changes = [], loading }: PricingHistoryProps) {
           {["all", "scheduled", "active", "expired"].map((status) => (
             <button
               key={status}
-              onClick={() => setStatusFilter(status as any)}
+              onClick={() => setStatusFilter(status)}
               className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
                 statusFilter === status
                   ? "bg-primary-50 text-primary-600"

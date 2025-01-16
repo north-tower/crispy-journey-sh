@@ -21,9 +21,18 @@ interface InventoryData {
   totalStock: number;  // Aggregated stock data
 }
 
+
+// Type for the transformed data used in your component
+export interface TransformedInventoryData {
+  name: string; // Category name
+  inStock: number; // Total stock for the category
+  lowStock: number; // Hardcoded or calculated low stock value
+  outOfStock: number; // Hardcoded or calculated out-of-stock value
+}
+
 export function InventoryOverview({ timeframe }: InventoryOverviewProps) {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [data, setData] = useState<any[]>([]);
+  
+  const [data, setData] = useState<TransformedInventoryData[]>([]);
 
   // Fetch data from API
   useEffect(() => {
@@ -112,7 +121,7 @@ export function InventoryOverview({ timeframe }: InventoryOverviewProps) {
                         <p className="text-sm font-medium text-gray-900 mb-2">
                           {label}
                         </p>
-                        {payload.map((item: any) => (
+                        {payload.map((item) => (
                           <div
                             key={item.name}
                             className="flex items-center justify-between gap-4 text-sm"
@@ -136,7 +145,7 @@ export function InventoryOverview({ timeframe }: InventoryOverviewProps) {
                 wrapperStyle={{ paddingTop: "20px" }}
                 content={({ payload }) => (
                   <div className="flex justify-center gap-6">
-                    {payload?.map((entry: any) => (
+                    {payload?.map((entry) => (
                       <div
                         key={entry.value}
                         className="flex items-center gap-2"

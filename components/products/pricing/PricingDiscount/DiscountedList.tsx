@@ -25,7 +25,7 @@ interface DiscountedListProps {
   isLoading?: boolean;
 }
 
-const DiscountedList: React.FC<DiscountedListProps> = ({ items, onViewAll, isLoading = false }) => {
+const DiscountedList: React.FC<DiscountedListProps> = ({ items, isLoading = false }) => {
   const router = useRouter();
 
   const isNewProduct = (createdAt: string) => {

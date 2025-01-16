@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import { Order } from "@/types/orders";
 import { useRouter } from "next/navigation";
-import { Clock, Package } from "lucide-react";
+import { Clock } from "lucide-react";
 
 interface OrderGridProps {
   orders: Order[];

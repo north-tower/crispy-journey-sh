@@ -10,7 +10,6 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { motion, AnimatePresence } from "framer-motion";
 import { SalesTrend, TimeFrame } from "@/types/analytics";
 import { formatCurrency, formatNumber } from "@/lib/utils/charts";
 
@@ -28,7 +27,7 @@ export function SalesTrendChart({
   const [activeMetric, setActiveMetric] = useState<
     "sales" | "revenue" | "orders"
   >("revenue");
-  const [hoveredData, setHoveredData] = useState<any>(null);
+  const [hoveredData, setHoveredData] = useState<boolean>(null);
 
   const metrics = [
     { key: "revenue", label: "Revenue", color: "#10B981" },
@@ -64,7 +63,7 @@ export function SalesTrendChart({
               {metrics.map((metric) => (
                 <button
                   key={metric.key}
-                  onClick={() => setActiveMetric(metric.key as any)}
+                  onClick={() => setActiveMetric(metric.key )}
                   className={`
                     px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200
                     ${

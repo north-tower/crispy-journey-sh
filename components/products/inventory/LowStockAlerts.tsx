@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertCircle, Bell, Package, MoreVertical, ShoppingCart } from "lucide-react";
+import { AlertCircle, Bell, Package } from "lucide-react";
 
 interface StockAlert {
   id: string;

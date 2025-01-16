@@ -16,7 +16,7 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Filter,
-  Clock,
+
 } from "lucide-react";
 import { formatNumber, calculateGrowth, chartTheme } from "@/lib/utils/charts";
 import { StatsBox } from "./StatsBox";

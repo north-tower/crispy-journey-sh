@@ -1,6 +1,6 @@
 // /components/orders/completed/CompletedHeader.tsx
 import { motion } from "framer-motion";
-import { Search, RefreshCcw, Calendar, CheckSquare } from "lucide-react";
+import { Search, RefreshCcw, CheckSquare } from "lucide-react";
 
 interface CompletedHeaderProps {
   totalOrders: number;

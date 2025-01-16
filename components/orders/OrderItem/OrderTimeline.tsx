@@ -1,5 +1,4 @@
 // components/orders/OrderItem/OrderTimeline.tsx
-import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 
 interface OrderTimelineProps {
@@ -7,6 +6,8 @@ interface OrderTimelineProps {
 }
 
 export function OrderTimeline({ orderId }: OrderTimelineProps) {
+
+  console.log(orderId)
   // Mock timeline data
   const timeline = [
     {

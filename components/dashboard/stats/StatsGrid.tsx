@@ -4,7 +4,7 @@ import {
   TrendingUp,
   Package,
   AlertTriangle,
-  Heart,
+
 } from "lucide-react";
 import { StatsCard } from "./StatsCard";
 import { useDashboardStats } from "@/lib/hooks/useDashboardStats";

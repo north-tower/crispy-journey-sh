@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils/utils";
-import { useRouter } from "next/navigation";
+
 
 function getDaysInMonth(year: number, month: number) {
   const days = [];
@@ -33,7 +33,7 @@ function getStartOfWeek(date: Date) {
 export default function ExpandedCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<"day" | "week" | "month">("month");
-  const router = useRouter();
+
 
   const scheduledProducts = {
     "2024-11-05": { "12 PM": ["Product A"], "3 PM": ["Product B"] },

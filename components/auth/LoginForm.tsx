@@ -29,7 +29,7 @@ export function LoginForm() {
       router.push('/')
       // Show success toast
       toast.success("Login successful!");
-    } catch (err: any) {
+    } catch (err) {
       toast.error(err.response?.data?.message || "An error occurred during login.");
     } finally {
       setIsLoading(false);
@@ -140,7 +140,7 @@ export function LoginForm() {
       </motion.button>
 
       <div className="text-center">
-        <span className="text-sm text-gray-600">Don't have an account? </span>
+        <span className="text-sm text-gray-600">Dont have an account? </span>
         <Link
           href="/auth/register"
           className="text-sm font-medium text-primary-600 hover:text-primary-500"

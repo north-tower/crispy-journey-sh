@@ -1,7 +1,7 @@
 // DiscountedProductsTable.tsx
 "use client"
 import React, { useState } from 'react';
-import { DollarSign, Percent, Star, TrendingUp, BarChart, Edit2, Save, X, Trash2, Fuel } from 'lucide-react';
+import {  Star, TrendingUp, BarChart, Edit2, Save, X, Trash2, } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import { Product } from '@/types/products';
 import clsx from 'clsx';
@@ -26,8 +26,8 @@ const DiscountedProductsTable: React.FC<DiscountedProductsTableProps> = ({ items
   const [currentPage, setCurrentPage] = useState(1);
   const [sortKey, setSortKey] = useState<keyof Product | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filter, setFilter] = useState<{ status?: string; salesPotential?: string; minProfitMargin?: number }>({});
+ 
+  const [filter, ] = useState<{ status?: string; salesPotential?: string; minProfitMargin?: number }>({});
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const totalPages = Math.ceil(items.length / itemsPerPage);
@@ -132,15 +132,20 @@ const DiscountedProductsTable: React.FC<DiscountedProductsTableProps> = ({ items
                 className={clsx("border-b border-gray-200 hover:bg-gray-100", editRow === item.id && "bg-primary-100")}
               >
                 <td className="p-4">
-                  <input
-                    type="checkbox"
-                    checked={selectedItems.has(item.id)}
-                    onChange={() => {
-                      const updated = new Set(selectedItems);
-                      updated.has(item.id) ? updated.delete(item.id) : updated.add(item.id);
-                      setSelectedItems(updated);
-                    }}
-                  />
+                <input
+  type="checkbox"
+  checked={selectedItems.has(item.id)}
+  onChange={() => {
+    const updated = new Set(selectedItems);
+    if (updated.has(item.id)) {
+      updated.delete(item.id); // Remove the item if it exists
+    } else {
+      updated.add(item.id); // Add the item if it doesn't exist
+    }
+    setSelectedItems(updated);
+  }}
+/>
+
                 </td>
                 <td className="p-4 flex items-center space-x-3">
                   <img src={item.imageUrl} alt={item.name} className="w-12 h-12 object-cover rounded-lg" />

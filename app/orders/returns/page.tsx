@@ -92,7 +92,7 @@ export default function Returns() {
         {loading ? (
           <p className="text-center text-gray-500">Loading...</p>
         ) : error ? (
-          <p className="text-center text-red-500">{error}</p>
+          <p className="text-center text-red-500">error</p>
         ) : filteredReturns.length > 0 ? (
           <ReturnsTable returns={filteredReturns} />
         ) : (

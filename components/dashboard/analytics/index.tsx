@@ -9,7 +9,6 @@ export { AnalyticsCard } from "./AnalyticsCard";
 
 // components/dashboard/analytics/AnalyticsGrid.tsx
 import { ReactNode } from "react";
-import { motion } from "framer-motion";
 
 interface AnalyticsGridProps {
   children: ReactNode;

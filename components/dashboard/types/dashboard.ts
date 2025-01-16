@@ -1,3 +1,5 @@
+import { CategorySales, ProductPerformance, SalesTrend } from "@/types/dashboard";
+
 // types/dashboard.ts
 export type TimeRange = "daily" | "weekly" | "monthly" | "yearly";
 
@@ -9,7 +11,7 @@ export interface Stats {
       percentage: number;
     };
   };
-  salesTrends: any[]; // Define proper type based on your data
-  categorySales: any[]; // Define proper type based on your data
-  topProducts: any[]; // Define proper type based on your data
+  salesTrends: SalesTrend[]; // Define proper type based on your data
+  categorySales: CategorySales[]; // Define proper type based on your data
+  topProducts: ProductPerformance[]; // Define proper type based on your data
 }

@@ -116,7 +116,7 @@ export function PerformanceCharts() {
           Processing Time Analysis
         </h3>
         <div className="h-[300px]">
-          <Line data={processingData} options={chartOptions as any} />
+          <Line data={processingData} options={chartOptions} />
         </div>
       </div>
     </div>

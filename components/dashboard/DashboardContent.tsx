@@ -1,10 +1,10 @@
 // components/dashboard/DashboardContent.tsx
 import { memo } from 'react';
 import dynamic from 'next/dynamic';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion,  } from 'framer-motion';
 import { AnalyticsGridSkeleton } from './analytics/AnalyticsGridSkeleton';
-import { Stats } from './types/dashboard';
 import { StatsGrid } from './stats/StatsGrid';
+import { DashboardStats } from '@/types/dashboard';
 
 // Dynamically import heavy components
 const AnalyticsComponents = {
@@ -24,7 +24,7 @@ const AnalyticsComponents = {
 };
 
 interface DashboardContentProps {
-  stats: Stats | null;
+  stats: DashboardStats | null;
   loading: boolean;
   error: Error | null;
   onRetry: () => void;

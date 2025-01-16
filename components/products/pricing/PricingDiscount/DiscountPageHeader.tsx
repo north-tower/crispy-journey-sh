@@ -1,5 +1,5 @@
 // DiscountPageHeader.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Search, Plus, Filter, Grid, Table } from "lucide-react";
 import { NewProductModal } from "../../NewProductModal";
 
@@ -22,7 +22,7 @@ const DiscountPageHeader: React.FC<DiscountPageHeaderProps> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleSubmit = (data: any) => {
+  const handleSubmit = (data) => {
     // TODO: Handle the new product data here
     console.log("New product:", data);
     //TODO: API call or state management logic

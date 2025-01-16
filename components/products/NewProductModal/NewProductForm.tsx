@@ -1,5 +1,6 @@
 import apiClient from "@/lib/axios";
 import { useCategoriesStore } from "@/lib/store/categories";
+import { API_BASE_URL } from "@/services/products";
 import { useEffect, useState } from "react";
 
 interface FormData {
@@ -65,7 +66,7 @@ export function NewProductForm({ onSubmit, onCancel }: NewProductFormProps) {
     try {
       // Step 1: Create the product without images
       const productResponse = await apiClient.post(
-        "http://localhost:8900/api/products",
+        `${API_BASE_URL}/products`,
         {
           ...formData,
           imageIds: [], // Initially, no images
@@ -83,7 +84,7 @@ export function NewProductForm({ onSubmit, onCancel }: NewProductFormProps) {
         fileData.append("productId", productId); // Now include the productId
 
         const uploadResponse = await apiClient.post(
-          "http://localhost:8900/api/media/upload",
+          `${API_BASE_URL}/media/upload`,
           fileData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
@@ -96,12 +97,12 @@ export function NewProductForm({ onSubmit, onCancel }: NewProductFormProps) {
       }
 
       // Step 3: Update the product with the uploaded image IDs
-      await apiClient.patch(`http://localhost:8900/api/products/${productId}`, {
+      await apiClient.patch(`${API_BASE_URL}/products/${productId}`, {
         imageIds: uploadedIds,
       });
 
       await onSubmit();
-    } catch (error: any) {
+    } catch (error) {
       console.error(
         "Error submitting product form:",
         error.response ? error.response.data : error.message

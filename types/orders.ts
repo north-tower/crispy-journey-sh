@@ -13,6 +13,10 @@ export interface OrderItem {
 }
 
 export interface Order {
+  amount: any;
+  date: string | number | Date;
+  returnReason: any;
+  customer: any;
   id: string;
   orderNumber: string;
   customerName: string;

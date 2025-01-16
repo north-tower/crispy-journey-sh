@@ -27,7 +27,7 @@ export function CategoryBreakdown() {
     sales: parseInt(category.sales, 10),
   })) || [];
 
-  const renderActiveShape = (props: any) => {
+  const renderActiveShape = (props: { cx: number; cy: number; innerRadius: number; outerRadius: number; startAngle: number; endAngle: number; fill: number; payload: string; percent: number; }) => {
     const {
       cx,
       cy,

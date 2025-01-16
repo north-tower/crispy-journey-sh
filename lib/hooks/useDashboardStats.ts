@@ -10,9 +10,9 @@ export function useDashboardStats() {
     try {
       setLoading(true);
       setError(null);
-
+    
       // Fetch data from the backend API
-      const response = await fetch(`http://localhost:8900/api/dashboard/stats?timeRange=${timeRange}`);
+      const response = await fetch(`http://16.16.68.79:8900/api/dashboard/stats?timeRange=${timeRange}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch dashboard stats: ${response.statusText}`);
       }

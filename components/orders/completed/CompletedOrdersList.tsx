@@ -74,15 +74,7 @@ function OrdersLoading({ view }: { view: "grid" | "table" }) {
   );
 }
 
-// Empty State
-function EmptyState() {
-  return (
-    <div className="p-8 text-center">
-      <AlertCircle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-      <p className="text-gray-500">No active orders found</p>
-    </div>
-  );
-}
+
 
 // Error State
 function OrdersError({ onRetry }: { onRetry: () => void }) {

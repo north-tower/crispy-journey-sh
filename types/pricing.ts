@@ -1,3 +1,5 @@
+import { LucideIcon } from "lucide-react";
+
 // types/pricing.ts
 export type PricingStrategy = "fixed" | "dynamic" | "tiered" | "promotional";
 export type PriceChangeStatus = "scheduled" | "active" | "expired";
@@ -28,6 +30,11 @@ export interface PricingSuggestion {
 }
 
 export interface PricingMetrics {
+  title: any;
+  value: any;
+  change: any;
+  icon: LucideIcon
+  trend: any;
   averageMargin: number;
   recentChanges: number;
   scheduledChanges: number;

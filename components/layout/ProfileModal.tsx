@@ -3,7 +3,7 @@
 import { useAuthStore } from "@/lib/store/authStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, Store, LogOut, HelpCircle, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+
 
 
 interface ProfileModalProps {
@@ -18,13 +18,9 @@ interface ProfileModalProps {
 
 export function ProfileModal({ isOpen, onClose, profile }: ProfileModalProps) {
  
-  const router = useRouter();
   const logout = useAuthStore((state) => state.logout);
 
-
-
   const handleLogout = () => {
-   
     logout();
   };
   const menuItems = [
@@ -95,7 +91,7 @@ export function ProfileModal({ isOpen, onClose, profile }: ProfileModalProps) {
 
             {/* Menu Items */}
             <div className="p-2">
-              {menuItems.map((item, index) => (
+              {menuItems.map((item, ) => (
                 <motion.button
                   key={item.label}
                   whileHover={{ scale: 1.02, x: 4 }}

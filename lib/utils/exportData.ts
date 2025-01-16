@@ -10,6 +10,8 @@ export async function exportSalesReport(timeRange: string) {
 }
 
 function generateSalesReport(timeRange: string) {
+
+  console.log(timeRange)
   // Mock data generation - replace with actual data fetching
   return {
     headers: ["Date", "Revenue", "Orders", "Customers", "Average Order Value"],

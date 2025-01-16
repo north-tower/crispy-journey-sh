@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingCart,
   Package,
-  TrendingUp,
+  
   AlertCircle,
   ChevronRight,
   Clock,

@@ -30,6 +30,8 @@ export function ForgotPasswordForm() {
       setIsLoading(true);
       setError(null);
 
+      console.log(data)
+
       // Add your password reset API call here
       // await resetPassword(data.email);
 
@@ -38,7 +40,7 @@ export function ForgotPasswordForm() {
 
       setIsSuccess(true);
     } catch (err) {
-      setError("Unable to process your request. Please try again later.");
+      setError(`Unable to process your request. Please try again later. ${err}`);
     } finally {
       setIsLoading(false);
     }
@@ -54,7 +56,7 @@ export function ForgotPasswordForm() {
             exit={{ opacity: 0, y: -20 }}
             className="rounded-lg bg-green-50 p-4 text-sm text-green-600"
           >
-            Check your email for a link to reset your password. If it doesn't
+            Check your email for a link to reset your password. If it doesnt
             appear within a few minutes, check your spam folder.
           </motion.div>
         ) : (

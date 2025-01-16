@@ -1,6 +1,7 @@
 // components/ui/alert.tsx
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import clsx from "clsx"; // Use clsx for combining class names
 
 const alertVariants = cva(
   "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground",
@@ -25,7 +26,7 @@ const Alert = React.forwardRef<
   <div
     ref={ref}
     role="alert"
-    className={alertVariants({ variant })}
+    className={clsx(alertVariants({ variant }), className)} // Combine className with variant classes
     {...props}
   />
 ));
@@ -37,7 +38,7 @@ const AlertTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h5
     ref={ref}
-    className="mb-1 font-medium leading-none tracking-tight"
+    className={clsx("mb-1 font-medium leading-none tracking-tight", className)} // Combine className
     {...props}
   />
 ));
@@ -47,7 +48,11 @@ const AlertDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className="text-sm [&_p]:leading-relaxed" {...props} />
+  <div
+    ref={ref}
+    className={clsx("text-sm [&_p]:leading-relaxed", className)} // Combine className
+    {...props}
+  />
 ));
 AlertDescription.displayName = "AlertDescription";
 

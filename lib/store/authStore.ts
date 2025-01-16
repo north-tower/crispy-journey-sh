@@ -1,8 +1,16 @@
 import { create } from 'zustand';
 import axios from 'axios';
 
+export type User = {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: "SELLER" | "BUYER" | "ADMIN"; // Use a union type for role
+};
+
 type AuthState = {
-  user: any | null;
+  user: User | null;
   isAuthenticated: boolean;
   accessToken: string | null;
   refreshToken: string | null;
@@ -12,6 +20,7 @@ type AuthState = {
   refreshAccessToken: () => Promise<void>;
   loadUser: () => Promise<void>;
 };
+
 
 type RegisterData = {
   email: string;
@@ -30,11 +39,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   login: async (email, password) => {
     try {
-      const response = await axios.post(`http://localhost:8900/api/auth/login`, {
+      const response = await axios.post(`http://16.16.68.79:8900/api/auth/login`, {
         email,
         password,
       });
       const { tokens, user } = response.data;
+
+      console.log(user)
 
       // Save tokens in localStorage
       localStorage.setItem('accessToken', tokens.accessToken);
@@ -48,7 +59,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
 
       console.log(user?.role)
-    } catch (error: any) {
+    } catch (error) {
       console.error('Login failed:', error.response?.data?.message || error.message);
       throw error;
     }
@@ -56,7 +67,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   register: async (data) => {
     try {
-      await axios.post('http://localhost:8900/api/auth/register', data);
+      await axios.post('http://16.16.68.79:8900/api/auth/register', data);
     } catch (error) {
       console.error('Registration failed:', error);
       throw error;
@@ -69,7 +80,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       if (accessToken && refreshToken) {
         await axios.post(
-          'http://localhost:8900/api/auth/logout',
+          'http://16.16.68.79:8900/api/auth/logout',
           { refreshToken },
           {
             headers: { Authorization: `Bearer ${accessToken}` },
@@ -99,7 +110,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 
     try {
-      const response = await axios.post('http://localhost:8900/api/auth/refresh', { refreshToken });
+      const response = await axios.post('http://16.16.68.79:8900/api/auth/refresh', { refreshToken });
       const { accessToken, refreshToken: newRefreshToken } = response.data.tokens;
 
       localStorage.setItem('accessToken', accessToken);
@@ -121,7 +132,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (!accessToken) return;
 
     try {
-      const response = await axios.get('http://localhost:8900/api/auth/me', {
+      const response = await axios.get('http://16.16.68.79:8900/api/auth/me', {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
@@ -146,7 +157,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   
     try {
       const response = await axios.patch(
-        `http://localhost:8900/api/users/${user.id}`,
+        `http://16.16.68.79:8900/api/users/${user.id}`,
         data,
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );
@@ -154,7 +165,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       // Update the user in Zustand state
       set((state) => ({ ...state, user: { ...state.user, ...response.data } }));
     } catch (error) {
-      console.error('Failed to update profile:', error.response?.data || error.message);
+      console.error('Failed to update profile:');
       throw error;
     }
   },

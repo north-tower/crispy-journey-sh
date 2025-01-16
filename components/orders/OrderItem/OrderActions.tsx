@@ -1,7 +1,7 @@
 // components/orders/OrderItem/OrderActions.tsx
 import { Order } from "@/types/orders";
 import { motion } from "framer-motion";
-import { Printer, Download, MoreVertical, AlertCircle } from "lucide-react";
+import { Printer, Download, MoreVertical,  } from "lucide-react";
 import { useState } from "react";
 
 interface OrderActionsProps {
@@ -10,7 +10,7 @@ interface OrderActionsProps {
 
 export function OrderActions({ order }: OrderActionsProps) {
   const [showActions, setShowActions] = useState(false);
-
+console.log(order)
   return (
     <div className="flex items-center gap-2">
       <motion.button

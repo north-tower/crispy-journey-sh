@@ -144,30 +144,7 @@ export const generateDateLabels = (
 /**
  * Chart Data Processing
  */
-export const processChartData = (
-  data: any[],
-  options: {
-    xKey: string;
-    yKey: string;
-    sortBy?: "asc" | "desc";
-    limit?: number;
-  }
-) => {
-  let processed = [...data];
 
-  if (options.sortBy) {
-    processed.sort((a, b) => {
-      const comparison = a[options.yKey] - b[options.yKey];
-      return options.sortBy === "desc" ? -comparison : comparison;
-    });
-  }
-
-  if (options.limit) {
-    processed = processed.slice(0, options.limit);
-  }
-
-  return processed;
-};
 
 /**
  * Chart Value Calculations

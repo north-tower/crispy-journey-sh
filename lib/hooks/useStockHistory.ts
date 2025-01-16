@@ -11,6 +11,8 @@ export function useStockHistory() {
     async (filters: StockHistoryFilters = {}) => {
       setLoading(true);
       try {
+
+        console.log(filters)
         // Mock API call - replace with actual API
         await new Promise((resolve) => setTimeout(resolve, 1000));
         // Mock data

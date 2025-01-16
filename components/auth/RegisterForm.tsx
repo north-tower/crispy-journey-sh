@@ -43,9 +43,9 @@ export function RegisterForm() {
         throw new Error(errorData.message || "Failed to register.");
       }
 
-      const data = await response.json();
+      
       toast.success("Registration successful! Check your email for the verification link.");
-    } catch (err: any) {
+    } catch (err) {
       setError(err.message);
     } finally {
       setIsLoading(false);

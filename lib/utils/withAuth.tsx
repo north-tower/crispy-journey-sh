@@ -4,7 +4,7 @@ import Router from 'next/router';
 import { useAuthStore } from '../store/authStore';
 
 const withAuth = (WrappedComponent: React.FC) => {
-  return (props: any) => {
+  const ComponentWithAuth = (props) => {
     const { isAuthenticated, loadUser } = useAuthStore();
 
     useEffect(() => {
@@ -24,6 +24,11 @@ const withAuth = (WrappedComponent: React.FC) => {
 
     return <WrappedComponent {...props} />;
   };
+
+  // Assign a displayName for easier debugging
+  ComponentWithAuth.displayName = `WithAuth(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
+
+  return ComponentWithAuth;
 };
 
 export default withAuth;

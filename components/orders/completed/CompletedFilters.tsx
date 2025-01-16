@@ -1,5 +1,4 @@
 import { Order } from "@/types/orders";
-import { motion } from "framer-motion";
 import { Calendar, DollarSign, LucideIcon, Star } from "lucide-react";
 
 interface CompletedFiltersProps {

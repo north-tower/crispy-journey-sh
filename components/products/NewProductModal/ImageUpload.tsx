@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ImageUploadProps {
@@ -6,7 +6,7 @@ interface ImageUploadProps {
 }
 
 export function ImageUpload({ onChange }: ImageUploadProps) {
-  const [files, setFiles] = useState<File[]>([]);
+  const [, setFiles] = useState<File[]>([]);
   const [preview, setPreview] = useState<string[]>([]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {

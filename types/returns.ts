@@ -1,4 +1,6 @@
-export type ReturnStatus = "pending" | "approved" | "rejected";
+import { OrderItem } from "./orders";
+
+export type ReturnStatus = "PENDING" | "APPROVED" | "REJECTED" | 'PROCESSING' | 'ready' | 'SHIPPED';
 
 export interface ReturnOrder {
   id: string;
@@ -10,8 +12,8 @@ export interface ReturnOrder {
   returnReason: string;
   status: ReturnStatus;
   amount: number;
-  date: string;
-  items: ReturnItem[];
+  date: string | number | Date;
+  items: OrderItem[];
   notes?: string;
 }
 

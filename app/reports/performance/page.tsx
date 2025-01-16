@@ -7,18 +7,13 @@ import { debounce } from "lodash";
 import { Target, ThumbsUp, Timer } from "lucide-react";
 import { PerformanceCharts } from "@/components/reports/performance/PerformanceCharts";
 import { CategoryPerformance } from "@/components/reports/performance/CategoryPerformance";
+import { PricingMetrics } from "@/types/pricing";
+import { PerformanceMetric } from "@/types/performance";
 
-interface PerformanceMetric {
-  title: string;
-  value: string;
-  change: string;
-  icon: any;
-  trend: "up" | "down" | "neutral";
-}
 
 export default function Performance() {
   const [timeRange, setTimeRange] = useState("30");
-  const [category, setCategory] = useState("all");
+  const [category, ] = useState("all");
   const [metrics, setMetrics] = useState<PerformanceMetric[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +32,7 @@ export default function Performance() {
   
       const data = await response.json();
       setMetrics(
-        data.metrics.map((metric: any) => ({
+        data.metrics.map((metric: PricingMetrics) => ({
           title: metric.title,
           value: metric.value,
           change: `${metric.change.value > 0 ? '+' : ''}${metric.change.percentage}%`, // Correctly format the change
@@ -45,7 +40,7 @@ export default function Performance() {
           trend: metric.trend,
         }))
       );
-    } catch (err: any) {
+    } catch (err) {
       setError(err.message || "Something went wrong.");
     } finally {
       setLoading(false);
@@ -61,9 +56,7 @@ export default function Performance() {
     setTimeRange(newTimeRange);
   }, 200);
 
-  const handleCategoryChange = debounce((newCategory) => {
-    setCategory(newCategory);
-  }, 200);
+
 
   const getIcon = (icon: string) => {
     switch (icon) {

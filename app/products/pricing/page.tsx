@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Sidebar from "@/components/products/pricing/SideBar";
 import { products } from "@/types/products";
 import DiscountedList from "@/components/products/pricing/PricingDiscount/DiscountedList";
+import { PriceChange, PricingMetrics, PricingSuggestion } from "@/types/pricing";
 
 // Memoized components
 const MemoizedPricingHeader = memo(PricingHeader);
@@ -48,7 +49,7 @@ const fadeInUp = {
 
 // Pricing Content component
 const PricingContent = memo(
-  ({ metrics, changes, suggestions, loading }: { metrics: any; changes: any; suggestions: any; loading: boolean }) => {
+  ({ metrics, changes, suggestions, loading }: { metrics: PricingMetrics; changes: PriceChange; suggestions: PricingSuggestion; loading: boolean }) => {
     if (loading) return <LoadingState />;
 
     return (

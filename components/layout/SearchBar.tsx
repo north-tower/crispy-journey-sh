@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, Command, Calendar, Settings, HelpCircle, Mail } from "lucide-react";
 import { cn } from "@/lib/utils/utils";
 import { CalendarPopover } from "../dashboard/CalendarPopover";
-import { useRouter } from "next/navigation";
+
 
 const quickActions = [
   { icon: Calendar, label: "Calendar", shortcut: "⌘K C" },
@@ -20,7 +20,7 @@ export function SearchBar() {
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const calendarRef = useRef(null);
-  const router = useRouter();
+ 
 
   const scheduledProducts = {
     "2024-11-05": { items: ["Product A", "Product B"], type: "launch" },

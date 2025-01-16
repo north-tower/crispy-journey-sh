@@ -1,20 +1,14 @@
 // components/orders/OrderItem/index.tsx
 "use client";
 
-import { motion } from "framer-motion";
 import {
   ArrowLeft,
   Clock,
   Package,
-  Truck,
   MapPin,
   User,
   Mail,
-  Phone,
   CreditCard,
-  RefreshCcw,
-  Printer,
-  AlertCircle,
   LucideIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";

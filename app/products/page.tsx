@@ -6,6 +6,7 @@ import { useState, useEffect, useMemo, Suspense } from "react";
 import { AlertCircle } from "lucide-react";
 import dynamic from "next/dynamic";
 import { fetchProductsAPI } from "@/services/products";
+import { Product } from "@/types/products";
 
 // Dynamically import components with loading states
 const DynamicProductGrid = dynamic(
@@ -46,7 +47,7 @@ export default function ProductsPage() {
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [products, setProducts] = useState<any[]>([]); // Store fetched products
+  const [products, setProducts] = useState<Product[]>([]); // Store fetched products
   const [error, setError] = useState<string | null>(null);
 
   const fetchProducts = async () => {
@@ -55,7 +56,7 @@ export default function ProductsPage() {
 
     try {
       const data = await fetchProductsAPI();
-      const updatedProducts = data.map((product: any) => ({
+      const updatedProducts = data.map((product: Product) => ({
         ...product,
         status:
           product.stock >= 10
@@ -67,7 +68,7 @@ export default function ProductsPage() {
       
 
       setProducts(updatedProducts);
-    } catch (err: any) {
+    } catch (err) {
       setError(err.message || "Failed to fetch products. Please try again.");
     } finally {
       setIsLoading(false);

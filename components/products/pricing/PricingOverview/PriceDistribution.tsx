@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Info } from "lucide-react";
 
 export function PriceDistribution() {

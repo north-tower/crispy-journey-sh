@@ -1,21 +1,16 @@
 // components/layout/Header.tsx
 "use client";
 
-import { useState } from "react";
+
 import { HeaderProps } from "@/types/header";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion,  } from "framer-motion";
 import {
-  Search,
+
   Bell,
   Menu,
-  X,
-  Command,
-  Calendar,
-  Settings,
-  HelpCircle,
-  Mail,
+ 
 } from "lucide-react";
-import { cn } from "@/lib/utils/utils";
+
 import { SearchBar } from "./SearchBar";
 import { useAuthStore } from "@/lib/store/authStore";
 
@@ -33,20 +28,14 @@ function generateInitials(firstName?: string, lastName?: string): string {
   return `${firstInitial}${lastInitial}`;
 }
 export function Header({ sidebarOpen, onMenuClick }: HeaderProps) {
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
+
   const user = useAuthStore((state) => state.user);
   const profile: ProfileProps = {
     name: user?.firstName,
     role: "Store Owner",
     initials: generateInitials(user?.firstName, user?.lastName),
   };
-  const quickActions = [
-    { icon: Calendar, label: "Calendar", shortcut: "⌘K C" },
-    { icon: Settings, label: "Settings", shortcut: "⌘K S" },
-    { icon: HelpCircle, label: "Help Center", shortcut: "⌘K H" },
-    { icon: Mail, label: "Inbox", shortcut: "⌘K I" },
-  ];
+
 
   return (
     <motion.header

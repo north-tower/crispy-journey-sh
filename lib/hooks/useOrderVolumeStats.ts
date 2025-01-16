@@ -1,3 +1,4 @@
+import { Order } from "@/types/orders";
 import { useState, useEffect, useCallback, useMemo } from "react";
 
 const mapTimeRangeToBackend = (timeRange: "24h" | "7d" | "30d"): string => {
@@ -14,7 +15,7 @@ const mapTimeRangeToBackend = (timeRange: "24h" | "7d" | "30d"): string => {
 };
 
 export function useOrderVolumeStats(timeRange: "24h" | "7d" | "30d", orderType: string = "completed") {
-  const [orderData, setOrderData] = useState<any>(null); // State to store the fetched order data
+  const [orderData, setOrderData] = useState<Order | null>(null); // State to store the fetched order data
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 

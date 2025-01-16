@@ -17,13 +17,15 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import apiClient from "@/lib/axios";
 import { toast } from "react-toastify"; 
+import { API_BASE_URL } from "@/services/products";
+import { Product } from "@/types/products";
 
 
 export default function ProductDetailPage() {
   const router = useRouter();
   const params = useParams();
   const productId = params.productId as string;
-  const [product, setProduct] = useState<products | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Inline edit state
@@ -37,7 +39,7 @@ export default function ProductDetailPage() {
     const fetchProduct = async () => {
       try {
         const response = await apiClient.get(
-          `http://localhost:8900/api/products/${productId}`
+          `${API_BASE_URL}/products/${productId}`
         );
         const data = response.data;
 
@@ -72,7 +74,7 @@ export default function ProductDetailPage() {
 
     try {
       const updatedProduct = { ...product, sellingPrice: editedSellingPrice, stock: editedStock , markedPrice: editedMarkedPrice};
-      await apiClient.patch(`http://localhost:8900/api/products/${product.id}`, {
+      await apiClient.patch(`${API_BASE_URL}/products/${product.id}`, {
         sellingPrice: editedSellingPrice,
         markedPrice: editedMarkedPrice,
         stock: editedStock,
@@ -91,7 +93,7 @@ export default function ProductDetailPage() {
     if (!product) return;
   
     try {
-      await apiClient.patch(`http://localhost:8900/api/products/${product.id}/soft-delete`);
+      await apiClient.patch(`${API_BASE_URL}/products/${product.id}/soft-delete`);
       toast.success("Product deleted successfully!");
       router.push("/products"); // Redirect back to the products list
     } catch (error) {
@@ -100,6 +102,7 @@ export default function ProductDetailPage() {
     }
   };
   
+  console.log(product)
 
   if (loading) {
     return (
@@ -139,7 +142,7 @@ export default function ProductDetailPage() {
           <motion.div className="space-y-4">
             <div className="aspect-square rounded-lg border border-border overflow-hidden group relative">
               <img
-                src={`http://localhost:8900/uploads/${product.images?.[0]?.filename}`}
+                src={`http://16.16.68.79:8900/uploads/${product.images?.[0]?.filename}`}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />

@@ -95,7 +95,7 @@ export function PricingOverview({ metrics, loading }: PricingOverviewProps) {
                   key={range}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setTimeframe(range as any)}
+                  onClick={() => setTimeframe(range )}
                   className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
                     timeframe === range
                       ? "bg-white text-gray-900 shadow-sm"

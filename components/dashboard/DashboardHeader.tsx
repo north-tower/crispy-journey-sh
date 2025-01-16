@@ -1,12 +1,12 @@
 // components/dashboard/DashboardHeader.tsx
 import { memo } from "react";
-import { TimeRangeSelector } from "./TimeRangeSelector";
 import { ActionButtons } from "./ActionButtons";
 import { ArrowUpRight, Cpu } from "lucide-react";
-import { Stats, TimeRange } from "./types/dashboard";
+import {  TimeRange } from "./types/dashboard";
+import { DashboardStats } from "@/types/dashboard";
 
 interface DashboardHeaderProps {
-  stats: Stats | null;
+  stats: DashboardStats | null;
   loading: boolean;
   timeRange: TimeRange;
   showTimeRangeDropdown: boolean;
@@ -18,10 +18,6 @@ interface DashboardHeaderProps {
 export const DashboardHeader = memo(function DashboardHeader({
   stats,
   loading,
-  timeRange,
-  showTimeRangeDropdown,
-  onTimeRangeChange,
-  onTimeRangeToggle,
   onRefresh,
 }: DashboardHeaderProps) {
   return (
@@ -38,7 +34,7 @@ export const DashboardHeader = memo(function DashboardHeader({
         </div>
         <div className="flex items-center gap-2">
           <p className="text-sm text-gray-500">
-            Overview of your store's performance
+            Overview of your store performance
           </p>
           {!loading && stats?.totalSales.change.trend === "up" && (
             <div className="flex items-center gap-1 text-sm text-green-600">
