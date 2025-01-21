@@ -142,7 +142,7 @@ export default function ProductDetailPage() {
           <motion.div className="space-y-4">
             <div className="aspect-square rounded-lg border border-border overflow-hidden group relative">
               <img
-                src={`http://16.16.68.79:8900/uploads/${product.images?.[0]?.filename}`}
+                src={`https://shopeazz-s3-storage1.s3.eu-north-1.amazonaws.com/uploads/${product.images?.[0]?.filename}`}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />

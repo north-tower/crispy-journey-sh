@@ -101,7 +101,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
             <div className="rounded-lg border border-border overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-primary-200">
               <div className="aspect-square bg-muted relative overflow-hidden">
                 <img
-                  src={`http://localhost:8900/uploads/${product.images?.[0]?.filename}`}
+                  src={`https://shopeazz-s3-storage1.s3.eu-north-1.amazonaws.com/uploads/${product.images?.[0]?.filename}`}
                   alt={product.name}
                   className="object-cover w-full h-full transform transition-transform duration-300 group-hover:scale-110"
                 />
