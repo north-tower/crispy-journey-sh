@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { DashboardStats } from "@/types/dashboard";
+import { API_BASE_URL } from "@/services/products";
 
 export function useDashboardStats() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -12,7 +13,7 @@ export function useDashboardStats() {
       setError(null);
     
       // Fetch data from the backend API
-      const response = await fetch(`http://16.16.68.79:8900/api/dashboard/stats?timeRange=${timeRange}`);
+      const response = await fetch(`${API_BASE_URL}/dashboard/stats?timeRange=${timeRange}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch dashboard stats: ${response.statusText}`);
       }
