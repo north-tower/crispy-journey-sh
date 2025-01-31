@@ -1,5 +1,6 @@
 "use client";
 
+import { API_BASE_URL } from "@/services/products";
 import { useState, useEffect } from "react";
 
 interface TopProduct {
@@ -20,7 +21,7 @@ export function TopProducts({ timeRange }: { timeRange: string }) {
       setError(null);
       try {
         const response = await fetch(
-          `http://localhost:8900/api/dashboard/stats?timeRange=${timeRange}`
+          `${API_BASE_URL}/dashboard/stats?timeRange=${timeRange}`
         );
 
         if (!response.ok) {

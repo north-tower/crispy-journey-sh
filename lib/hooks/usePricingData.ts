@@ -5,6 +5,7 @@ import {
   PriceChange,
   PricingSuggestion,
 } from "@/types/pricing";
+import { API_BASE_URL } from "@/services/products";
 
 interface UsePricingDataReturn {
   metrics: PricingMetrics | null;
@@ -25,7 +26,7 @@ export function usePricingData(): UsePricingDataReturn {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8900/api/products/overview/data');
+      const response = await fetch(`${API_BASE_URL}/products/overview/data`);
       if (!response.ok) {
         throw new Error('Failed to fetch pricing data');
       }

@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { Store, Building2, CreditCard, Truck } from "lucide-react";
 import { debounce } from "lodash";
 import axios from "axios";
+import { API_BASE_URL } from "@/services/products";
 
 type TabType = "general" | "address" | "payment" | "shipping";
 
@@ -22,7 +23,7 @@ export default function StoreSettings() {
   useEffect(() => {
     const fetchStoreData = async () => {
       try {
-        const response = await axios.get("http://localhost:8900/api/sellers/email/33@gmail.com");
+        const response = await axios.get(`${API_BASE_URL}/sellers/email/33@gmail.com`);
         setStoreData(response.data);
       } catch (error) {
         console.error("Failed to fetch store data:", error);

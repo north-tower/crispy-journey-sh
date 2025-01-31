@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Order, OrderStatus } from "@/types/orders";
 import axios from "axios";
+import { API_BASE_URL } from "@/services/products";
 
 type OrderType = "active" | "completed" | "returned";
 
@@ -15,7 +16,7 @@ export function useOrders(type: OrderType = "completed") {
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:8900/api/orders`,
+      const response = await axios.get(`${API_BASE_URL}/orders`,
          {
         params: { type },
       }
@@ -42,7 +43,7 @@ export function useOrders(type: OrderType = "completed") {
   const updateOrderStatus = useCallback(
     async (orderId: string, newStatus: OrderStatus) => {
       try {
-        await axios.patch(`http://localhost:8900/api/orders/${orderId}`, { status: newStatus });
+        await axios.patch(`${API_BASE_URL}/orders/${orderId}`, { status: newStatus });
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
             order.id === orderId

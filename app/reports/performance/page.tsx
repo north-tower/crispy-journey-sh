@@ -9,6 +9,7 @@ import { PerformanceCharts } from "@/components/reports/performance/PerformanceC
 import { CategoryPerformance } from "@/components/reports/performance/CategoryPerformance";
 import { PricingMetrics } from "@/types/pricing";
 import { PerformanceMetric } from "@/types/performance";
+import { API_BASE_URL } from "@/services/products";
 
 
 export default function Performance() {
@@ -23,7 +24,7 @@ export default function Performance() {
     setError(null);
     try {
       const response = await fetch(
-        `http://localhost:8900/api/orders/overview/perfomance?timeRange=${timeRange}&category=all`
+        `${API_BASE_URL}/orders/overview/perfomance?timeRange=${timeRange}&category=all`
       );
   
       if (!response.ok) {

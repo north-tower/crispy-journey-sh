@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "@/services/products";
 import { Order } from "@/types/orders";
 import { useState, useEffect, useCallback, useMemo } from "react";
 
@@ -28,7 +29,7 @@ export function useOrderVolumeStats(timeRange: "24h" | "7d" | "30d", orderType: 
 
       // Fetch order data from the API with timeRange and orderType as query parameters
       const response = await fetch(
-        `http://localhost:8900/api/orders/overview/volume-and-metrics?timeRange=${mappedTimeRange}&status=${orderType}`
+        `${API_BASE_URL}/orders/overview/volume-and-metrics?timeRange=${mappedTimeRange}&status=${orderType}`
       );
       if (!response.ok) {
         throw new Error(`Failed to fetch order data: ${response.statusText}`);

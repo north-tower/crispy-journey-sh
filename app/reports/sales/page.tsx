@@ -19,6 +19,7 @@ import { SalesMetrics } from "@/components/reports/sales/SalesMetrics";
 import { exportSalesReport } from "@/lib/utils/exportData";
 import { debounce } from "lodash";
 import { PricingMetrics } from "@/types/pricing";
+import { API_BASE_URL } from "@/services/products";
 
 // Types
 interface SalesData {
@@ -45,7 +46,7 @@ export default function SalesReport() {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:8900/api/orders/overview/sales-metrics?timeRange=${timeRange}`
+        `${API_BASE_URL}/orders/overview/sales-metrics?timeRange=${timeRange}`
       );
 
       if (!response.ok) {

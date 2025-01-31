@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "@/services/products";
 import React, { useEffect, useState } from "react";
 
 export function CategoryPerformance() {
@@ -7,7 +8,7 @@ export function CategoryPerformance() {
   useEffect(() => {
     const fetchCategorySales = async () => {
       try {
-        const response = await fetch("http://localhost:8900/api/dashboard/stats?timeRange=monthly");
+        const response = await fetch(`${API_BASE_URL}/dashboard/stats?timeRange=monthly`);
         if (!response.ok) {
           throw new Error("Failed to fetch category sales");
         }
