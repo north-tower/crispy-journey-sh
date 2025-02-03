@@ -7,6 +7,7 @@ import { AlertCircle } from "lucide-react";
 import dynamic from "next/dynamic";
 import { fetchProductsAPI } from "@/services/products";
 import { Product } from "@/types/products";
+import { useSearchParams } from "next/navigation";
 
 // Dynamically import components with loading states
 const DynamicProductGrid = dynamic(
@@ -47,39 +48,52 @@ export default function ProductsPage() {
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [products, setProducts] = useState<Product[]>([]); // Store fetched products
+  const [products, setProducts] = useState<Product[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const [currentPage, setCurrentPage] = useState(() => {
+    const page = searchParams.get('page');
+    return page ? parseInt(page) : 1;
+  });
 
-  const fetchProducts = async () => {
+
+
+  const fetchProducts = async (page = currentPage) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const data = await fetchProductsAPI();
-      const updatedProducts = data.map((product: Product) => ({
+      const data = await fetchProductsAPI({
+        page,
+        limit: 10,
+        // Include search/filter logic if needed
+        ...(searchQuery ? { search: searchQuery } : {})
+      });
+
+      const updatedProducts = data.products.map((product: Product) => ({
         ...product,
-        status:
-          product.stock >= 10
-            ? "in_stock"
-            : product.stock >= 0 && product.stock <= 10
-            ? "low_stock"
-            : "out_of_stock",
+        status: product.stock >= 10
+          ? "in_stock"
+          : product.stock >= 0 && product.stock <= 10
+          ? "low_stock"
+          : "out_of_stock",
       }));
-      
 
       setProducts(updatedProducts);
+      setCurrentPage(data.page);
+      setTotalPages(data.totalPages);
     } catch (err) {
-      setError(err.message || "Failed to fetch products. Please try again.");
+      setError(err.message || "Failed to fetch products");
     } finally {
       setIsLoading(false);
     }
   };
+
   // Fetch products on page load
   useEffect(() => {
-    
-
-    fetchProducts();
-  }, []);
+    fetchProducts(currentPage);
+  }, [currentPage]);
 
   const handleProductCreated = () => {
     fetchProducts(); // Trigger data reload when a new product is created
@@ -134,7 +148,10 @@ export default function ProductsPage() {
     const ViewComponent =
       viewMode === "table" ? DynamicProductTable : DynamicProductGrid;
 
-    return <ViewComponent products={filteredProducts} />;
+    return <ViewComponent products={filteredProducts}  totalPages={totalPages}
+    currentPage={currentPage}
+    onPageChange={setCurrentPage} 
+    />;
   }, [viewMode, filteredProducts, isLoading]);
 
   return (

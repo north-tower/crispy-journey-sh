@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   Edit,
@@ -24,9 +24,16 @@ import { Product } from "@/types/products";
 export default function ProductDetailPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams(); 
+  const currentPage = searchParams.get('page') || '1';
   const productId = params.productId as string;
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+
+
+  const handleBackToProducts = () => {
+    router.push(`/products?page=${currentPage}`);
+  };
 
   // Inline edit state
   const [isEditing, setIsEditing] = useState(false);
@@ -131,7 +138,7 @@ export default function ProductDetailPage() {
         className="p-6 max-w-7xl mx-auto"
       >
         <button
-          onClick={() => router.back()}
+            onClick={handleBackToProducts}
           className="flex items-center text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />

@@ -8,11 +8,17 @@ import { Product } from "@/types/products";
 
 interface ProductGridProps {
   products: Product[];
+  totalPages: number;
+  currentPage: number;
+  onPageChange: (page: number) => void;
 }
 
-export default function ProductGrid({ products }: ProductGridProps) {
+export default function ProductGrid({  products,
+  totalPages,
+  currentPage,
+  onPageChange, }: ProductGridProps) {
   const router = useRouter();
-  const [currentPage, setCurrentPage] = useState(1);
+
 
   // Adjust items per page based on screen size
   const getItemsPerPage = () => {
@@ -35,17 +41,17 @@ export default function ProductGrid({ products }: ProductGridProps) {
   }, []);
 
   const handleProductClick = (productId: string) => {
-    router.push(`/products/${productId}`);
+    router.push(`/products/${productId}?page=${currentPage}`);
   };
 
   // Calculate pagination
-  const totalPages = Math.ceil(products.length / itemsPerPage);
+
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentProducts = products.slice(startIndex, endIndex);
 
-  // Generate page numbers
-  const getPageNumbers = () => {
+   // Generate page numbers with ellipsis for long lists
+   const getPageNumbers = () => {
     const pageNumbers = [];
     const maxVisiblePages = 5;
 
@@ -55,18 +61,21 @@ export default function ProductGrid({ products }: ProductGridProps) {
       }
     } else {
       if (currentPage <= 3) {
+        // First few pages
         for (let i = 1; i <= 4; i++) {
           pageNumbers.push(i);
         }
         pageNumbers.push("...");
         pageNumbers.push(totalPages);
       } else if (currentPage >= totalPages - 2) {
+        // Last few pages
         pageNumbers.push(1);
         pageNumbers.push("...");
         for (let i = totalPages - 3; i <= totalPages; i++) {
           pageNumbers.push(i);
         }
       } else {
+        // Middle pages
         pageNumbers.push(1);
         pageNumbers.push("...");
         for (let i = currentPage - 1; i <= currentPage + 1; i++) {
@@ -138,62 +147,55 @@ export default function ProductGrid({ products }: ProductGridProps) {
       </div>
       {/* </AnimatePresence> */}
 
-      {/* Pagination */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border">
-        <p className="text-sm text-muted-foreground text-center sm:text-left">
-          Showing {startIndex + 1} to {Math.min(endIndex, products.length)} of{" "}
-          {products.length} products
-        </p>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            className="p-2 rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            aria-label="Previous page"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-
-          {/* Desktop pagination numbers */}
-          <div className="hidden sm:flex gap-1">
-            {getPageNumbers().map((pageNum, index) => (
-              <button
-                key={index}
-                onClick={() =>
-                  typeof pageNum === "number" && setCurrentPage(pageNum)
-                }
-                className={`px-3 py-1 rounded-md text-sm transition-colors ${
-                  pageNum === currentPage
-                    ? "bg-primary text-primary-foreground"
-                    : pageNum === "..."
-                    ? "cursor-default"
-                    : "hover:bg-muted"
-                }`}
-                disabled={pageNum === "..."}
-                aria-label={`Page ${pageNum}`}
-                aria-current={pageNum === currentPage ? "page" : undefined}
-              >
-                {pageNum}
-              </button>
-            ))}
-          </div>
-
-          {/* Mobile page indicator */}
-          <span className="sm:hidden text-sm font-medium">
-            Page {currentPage} of {totalPages}
-          </span>
-
-          <button
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages}
-            className="p-2 rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            aria-label="Next page"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
+         {/* Pagination */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-2">
+              {products.length > 0 && (
+                <>
+                  <p className="text-xs md:text-sm text-muted-foreground">
+                    Page {currentPage} of {totalPages}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+                      disabled={currentPage === 1}
+                      className="p-2 rounded-md hover:bg-muted disabled:opacity-50"
+                    >
+                      <ChevronLeft className="hidden md:block h-5 w-5" />
+                    </button>
+      
+                    {/* Pagination numbers */}
+                    <div className="hidden md:flex items-center gap-1">
+                      {getPageNumbers().map((pageNum, index) => (
+                        <button
+                          key={index}
+                          onClick={() => 
+                            typeof pageNum === 'number' && onPageChange(pageNum)
+                          }
+                          className={`px-3 py-1 rounded-md text-sm ${
+                            pageNum === currentPage 
+                              ? 'bg-primary text-primary-foreground' 
+                              : pageNum === '...' 
+                                ? 'cursor-default' 
+                                : 'hover:bg-muted'
+                          }`}
+                          disabled={pageNum === '...'}
+                        >
+                          {pageNum}
+                        </button>
+                      ))}
+                    </div>
+      
+                    <button
+                      onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+                      disabled={currentPage === totalPages}
+                      className="p-2 rounded-md hover:bg-muted disabled:opacity-50"
+                    >
+                      <ChevronRight className="hidden md:block h-5 w-5" />
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
 
       {/* Mobile quick jump to top */}
       <button

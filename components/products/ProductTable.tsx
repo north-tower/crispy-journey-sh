@@ -1,31 +1,67 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React from "react";
 import { Product } from "@/types/products";
 
+
 interface ProductTableProps {
   products: Product[];
+  totalPages: number;
+  currentPage: number;
+  onPageChange: (page: number) => void;
 }
 
 const ProductTable = React.memo(function ProductTable({
   products,
+  totalPages,
+  currentPage,
+  onPageChange,
 }: ProductTableProps) {
   const router = useRouter();
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
   const handleRowClick = (productId: string) => {
-    router.push(`/products/${productId}`);
+    router.push(`/products/${productId}?page=${currentPage}`);
   };
 
-  // Pagination calculations
-  const totalPages = Math.ceil(products.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage, products.length);
-  const paginatedProducts = products.slice(startIndex, endIndex);
+  // Generate page numbers with ellipsis for long lists
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        // First few pages
+        for (let i = 1; i <= 4; i++) {
+          pageNumbers.push(i);
+        }
+        pageNumbers.push("...");
+        pageNumbers.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        // Last few pages
+        pageNumbers.push(1);
+        pageNumbers.push("...");
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pageNumbers.push(i);
+        }
+      } else {
+        // Middle pages
+        pageNumbers.push(1);
+        pageNumbers.push("...");
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pageNumbers.push(i);
+        }
+        pageNumbers.push("...");
+        pageNumbers.push(totalPages);
+      }
+    }
+    return pageNumbers;
+  };
 
   return (
     <div className="space-y-4">
@@ -42,18 +78,16 @@ const ProductTable = React.memo(function ProductTable({
             </tr>
           </thead>
           <tbody>
-            {paginatedProducts.map((product) => (
+            {products.map((product) => (
               <tr
                 key={product.id}
                 onClick={() => handleRowClick(product.id)}
                 className="border-t border-border hover:bg-muted/50 cursor-pointer transition-colors"
               >
-               
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center">
                       <img 
-                   
                         src={`https://shopeazz-s3-storage1.s3.eu-north-1.amazonaws.com/uploads/${product.images?.[0]?.filename}`}
                         alt={product.name}
                         className="w-8 h-8 object-cover rounded"
@@ -103,21 +137,41 @@ const ProductTable = React.memo(function ProductTable({
         {products.length > 0 && (
           <>
             <p className="text-xs md:text-sm text-muted-foreground">
-              Showing {startIndex + 1} to {endIndex} of {products.length}{" "}
-              products
+              Page {currentPage} of {totalPages}
             </p>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                onClick={() => onPageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
                 className="p-2 rounded-md hover:bg-muted disabled:opacity-50"
               >
                 <ChevronLeft className="hidden md:block h-5 w-5" />
               </button>
+
+              {/* Pagination numbers */}
+              <div className="hidden md:flex items-center gap-1">
+                {getPageNumbers().map((pageNum, index) => (
+                  <button
+                    key={index}
+                    onClick={() => 
+                      typeof pageNum === 'number' && onPageChange(pageNum)
+                    }
+                    className={`px-3 py-1 rounded-md text-sm ${
+                      pageNum === currentPage 
+                        ? 'bg-primary text-primary-foreground' 
+                        : pageNum === '...' 
+                          ? 'cursor-default' 
+                          : 'hover:bg-muted'
+                    }`}
+                    disabled={pageNum === '...'}
+                  >
+                    {pageNum}
+                  </button>
+                ))}
+              </div>
+
               <button
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(totalPages, p + 1))
-                }
+                onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
                 className="p-2 rounded-md hover:bg-muted disabled:opacity-50"
               >

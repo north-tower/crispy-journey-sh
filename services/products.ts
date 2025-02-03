@@ -7,7 +7,12 @@ export const createProduct = async (productData: any) => {
   return response.data;
 };
 
-export const fetchProductsAPI = async () => {
-  const response = await apiClient.get(`${API_BASE_URL}/products`);
+export const fetchProductsAPI = async (params: {
+  page?: number;
+  limit?: number;
+  category?: string;
+  
+}) => {
+  const response = await apiClient.get(`${API_BASE_URL}/products`, { params });
   return response.data;
 };
