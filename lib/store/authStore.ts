@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import axios from 'axios';
+import { API_BASE_URL } from '@/services/products';
 
 export type User = {
   id: string;
@@ -39,7 +40,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   login: async (email, password) => {
     try {
-      const response = await axios.post(`http://16.16.68.79:8900/api/auth/login`, {
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
         email,
         password,
       });
@@ -67,7 +68,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   register: async (data) => {
     try {
-      await axios.post('http://16.16.68.79:8900/api/auth/register', data);
+      await axios.post(`${API_BASE_URL}/auth/register`, data);
     } catch (error) {
       console.error('Registration failed:', error);
       throw error;
@@ -80,7 +81,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       if (accessToken && refreshToken) {
         await axios.post(
-          'http://16.16.68.79:8900/api/auth/logout',
+          `${API_BASE_URL}/auth/logout`,
           { refreshToken },
           {
             headers: { Authorization: `Bearer ${accessToken}` },
@@ -110,7 +111,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 
     try {
-      const response = await axios.post('http://16.16.68.79:8900/api/auth/refresh', { refreshToken });
+      const response = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken });
       const { accessToken, refreshToken: newRefreshToken } = response.data.tokens;
 
       localStorage.setItem('accessToken', accessToken);
@@ -132,7 +133,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (!accessToken) return;
 
     try {
-      const response = await axios.get('http://16.16.68.79:8900/api/auth/me', {
+      const response = await axios.get(`${API_BASE_URL}/auth/me`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
@@ -157,7 +158,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   
     try {
       const response = await axios.patch(
-        `http://16.16.68.79:8900/api/users/${user.id}`,
+        `${API_BASE_URL}/users/${user.id}`,
         data,
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );
